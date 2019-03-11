@@ -1,0 +1,55 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">MyGrocery</string>
+    <string name="tab_title_1">Historial</string>
+    <string name="tab_title_2">Llista Compra</string>
+    <string name="tab_title_3">Notificacions</string>
+    <string name="prompt_amount">Quantitat</string>
+    <string name="prompt_priority">Prioritat</string>
+    <string name="hint_item">Article</string>
+    <string name="hint_amount">Quantitat</string>
+    <string name="prompt_title_additem_dialog">Afegeix article</string>
+    <string name="prompt_afegir">AFEGIR</string>
+    <string name="prompt_cancelar">Cancel·lar</string>
+    <string name="prompt_no_remember_alert">Sense recordatori</string>
+    <string name="title_activity_login">Sign in</string>
+    <string name="prompt_username">Nom</string>
+    <string name="prompt_email">Correu</string>
+    <string name="prompt_password">Contrasenya</string>
+    <string name="prompt_default_target_email">Correu de l\'usuari amb qui enllaçar</string>
+    <string name="action_sign_in">Registrar</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="action_ok">OK</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_email">Not a valid email</string>
+    <string name="invalid_password">Password must be >8 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="prompt_login_subtitle">Entra les teves dades per registrar-te</string>
+    <string name="login_title">Benvingut a MyGrocery</string>
+    <string name="loader_init_info">Comprovant estat&#8230;</string>
+    <string name="loader_connecting_firebase">Connectant amb el servidor&#8230;</string>
+    <string name="loader_success_firebaselogin">Loguejat amb èxit. Obtenint dades&#8230;</string>
+    <string name="loader_fail_firebaselogin">Oops.. No s\'ha pogut loguejar contra el servidor.
+        Reinicia l\'App</string>
+    <string name="loader_fail_user">Usuari no trobat..</string>
+    <string name="prompt_select_filter">Filtre:</string>
+    <string name="prompt_select">Seleccionar</string>
+    <string name="prompt_showing">Mostrant:</string>
+    <string name="prompt_buy">Comprar</string>
+    <string name="prompt_details">Detalls</string>
+    <string name="prompt_edit">Editar</string>
+    <string name="prompt_delete">Eliminar</string>
+    <string name="title_activity_item">Nou Article</string>
+    <string name="prompt_other_users">Altres usuaris</string>
+    <string name="prompt_category">Categoria</string>
+    <string name="prompt_users_to_notify">Usuaris a notificar</string>
+    <string name="prompt_reminder">Recordatori</string>
+    <string name="help_once_per_line">Un correu per línia</string>
+    <!--*************-->
+    <!--ITEM ACTIVITY-->
+    <!--*************-->
+    <string name="invalid_item_name">Camp obligatori</string>
+    <string name="invalid_item_amount">Quantitat mínima = 1</string>
+    <string name="invalid_item_category">S\'ha d\'indicar una categoria</string>
+    <string name="invalid_item_priority">S\'ha d\'indicar una prioritat</string>
+
+</resources>

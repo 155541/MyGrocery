@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "761708668107",
+    "firebase_url": "https://mygrocery-20000.firebaseio.com",
+    "project_id": "mygrocery-20000",
+    "storage_bucket": "mygrocery-20000.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:761708668107:android:66a08976ac60f1ba",
+        "android_client_info": {
+          "package_name": "revolhope.splanes.com.mygrocery"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "761708668107-vuals3gfab08048qbqqp7ubl3f96udig.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFOWGKnv24et13DM58X6w_yPorIgPfjko"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
