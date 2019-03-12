@@ -19,6 +19,7 @@ import java.util.List;
 
 import revolhope.splanes.com.mygrocery.data.model.item.Item;
 import revolhope.splanes.com.mygrocery.data.model.User;
+import revolhope.splanes.com.mygrocery.helpers.repository.AppRepository;
 
 public class AppFirebase {
 
@@ -95,7 +96,7 @@ public class AppFirebase {
                 if (success) {
                     final String[] targetIds = (String[]) parameters;
                     final DatabaseReference dbRef = firebaseDatabase.getReference(db_item);
-                    dbRef.child(newItem.getId()).push().setValue(newItem, 
+                    dbRef.child(AppRepository.getAppUser().getId()).push().setValue(newItem,
                                                                  new DatabaseReference.CompletionListener() {
                         @Override
                         public void onComplete(@Nullable DatabaseError databaseError,
@@ -125,15 +126,16 @@ public class AppFirebase {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 User u;
+                int count = 0;
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    if (emails.isEmpty()) break;
+                    if (count == emails.size()) break;
                     u = snapshot.getValue(User.class);
                     if (u != null && emails.contains(u.getEmail())) {
+                        count++;
                         ids.add(u.getId());
-                        emails.remove(u.getEmail());
                     }
                 }
-                onComplete.taskCompleted(true, ids.toArray(new Object[0]));
+                onComplete.taskCompleted(true, (Object[])(ids.toArray(new String[0])));
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {

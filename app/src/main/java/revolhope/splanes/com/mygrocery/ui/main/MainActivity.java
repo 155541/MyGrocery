@@ -14,14 +14,20 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import revolhope.splanes.com.mygrocery.R;
+import revolhope.splanes.com.mygrocery.data.model.item.Item;
 import revolhope.splanes.com.mygrocery.helpers.repository.AppRepository;
 import revolhope.splanes.com.mygrocery.ui.main.grocery.GroceryFragment;
 import revolhope.splanes.com.mygrocery.ui.main.grocery.GroceryMasterFragment;
 
 public class MainActivity extends AppCompatActivity{
 
-    private GroceryMasterFragment groceryMasterFragment;
+    public static final String ITEMS = "PendingItems";
+    private List<Item> pendingItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +47,10 @@ public class MainActivity extends AppCompatActivity{
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
         viewPager.setCurrentItem(1);
+
+        if (getIntent().hasExtra(ITEMS)) {
+            pendingItems = Arrays.asList((Item[])getIntent().getSerializableExtra(ITEMS));
+        }
     }
 
     private class SectionsPagerAdapter extends FragmentPagerAdapter {
@@ -57,18 +67,11 @@ public class MainActivity extends AppCompatActivity{
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-
             switch (position) {
                 case 0:
                     return PlaceholderFragment.newInstance(position);
                 case 1:
-                    if(groceryMasterFragment == null) {
-                        groceryMasterFragment = new GroceryMasterFragment();
-                    }
-                    //return groceryMasterFragment;
-                    return new GroceryFragment();
+                    return GroceryFragment.newInstance(pendingItems);
                 case 2:
                     return PlaceholderFragment.newInstance(position);
             }

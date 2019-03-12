@@ -1,5 +1,6 @@
 package revolhope.splanes.com.mygrocery.ui.main.grocery;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,6 +31,7 @@ import revolhope.splanes.com.mygrocery.data.model.item.Filter;
 import revolhope.splanes.com.mygrocery.data.model.item.Item;
 import revolhope.splanes.com.mygrocery.data.model.item.ItemViewModel;
 import revolhope.splanes.com.mygrocery.data.model.item.ItemViewModelFactory;
+import revolhope.splanes.com.mygrocery.helpers.firebase.AppFirebase;
 import revolhope.splanes.com.mygrocery.helpers.repository.AppRepository;
 import revolhope.splanes.com.mygrocery.ui.main.grocery.item.GroceryItemFragment;
 import revolhope.splanes.com.mygrocery.ui.main.grocery.item.OnItemCreatedListener;
@@ -45,24 +48,29 @@ public class GroceryMasterFragment extends Fragment implements OnItemCreatedList
     private static String[] filterStrings;
     private static OnItemCreatedListener onItemCreatedListener;
     private static OnItemClickListener onItemClickListener;
+    private static List<Item> pendingItems;
 
     private Context context;
+    private Activity activity;
     private FragmentManager fragmentManager;
     private GroceryListAdapter adapter;
     private ItemViewModel itemViewModel;
 
-    @Contract("_ -> new")
-    static GroceryMasterFragment newInstance(OnItemClickListener itemClickListener) {
+    @Contract("_, _ -> new")
+    static GroceryMasterFragment newInstance(OnItemClickListener itemClickListener,
+                                             List<Item> items) {
         onItemClickListener = itemClickListener;
+        pendingItems = items;
         return new GroceryMasterFragment();
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getContext() == null || getFragmentManager() == null) return;
+        if (getContext() == null || getFragmentManager() == null || getActivity() == null) return;
         else {
             context = getContext();
+            activity = getActivity();
             fragmentManager = getFragmentManager();
         }
 
@@ -101,7 +109,7 @@ public class GroceryMasterFragment extends Fragment implements OnItemCreatedList
                 adapter.update(itemViewModel.getFilteredItems());
             }
         });
-        itemViewModel.itemsDataChanged(AppRepository.getItems());
+        itemViewModel.itemsDataChanged(pendingItems);
         itemViewModel.filterDataChanged(0);
         itemViewModel.getFilter().observe(this, new Observer<Filter>() {
             @Override
@@ -146,21 +154,26 @@ public class GroceryMasterFragment extends Fragment implements OnItemCreatedList
         });
     }
 
-    @Override
-    public void onResume() {
-        adapter.update(itemViewModel.getFilteredItems());
-        super.onResume();
-    }
-
-    public void onItemCreated(Item item) {
-        List<Item> items = itemViewModel.getItems().getValue();
-        if (items != null) {
-            items.add(item);
-        }
-        else {
-            items = new ArrayList<>();
-            items.add(item);
-        }
-        itemViewModel.itemsDataChanged(items);
+    public void onItemCreated(final Item item) {
+        AppFirebase firebase = AppFirebase.getInstance();
+        firebase.pushItem(item, new AppFirebase.OnComplete() {
+            @Override
+            public void taskCompleted(boolean success, Object... parameters) {
+                if (success) {
+                    Toast.makeText(context, "F*cking work", Toast.LENGTH_LONG).show();
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            List<Item> items = itemViewModel.getItemsSafe();
+                            items.add(item);
+                            itemViewModel.itemsDataChanged(items);
+                        }
+                    });
+                }
+                else {
+                    Toast.makeText(context, "Oooopps...", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 }

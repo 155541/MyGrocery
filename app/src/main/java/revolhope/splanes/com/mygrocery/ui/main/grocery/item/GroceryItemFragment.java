@@ -122,9 +122,6 @@ public class GroceryItemFragment extends Fragment {
                         String[] aux = defaultTarget.split("\n");
                         if (aux.length != 0 && !aux[0].isEmpty()) {
                             List<String> targets = Arrays.asList(aux);
-                            String userDefaultTarget = AppRepository.getAppUser().getDefaultUserTarget();
-                            if (userDefaultTarget != null && !userDefaultTarget.isEmpty())
-                                targets.add(userDefaultTarget);
                             item.setUsersTarget(targets);
                         }
                     }

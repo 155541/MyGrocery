@@ -12,12 +12,23 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import org.jetbrains.annotations.Contract;
+
+import java.util.List;
+
 import revolhope.splanes.com.mygrocery.R;
 import revolhope.splanes.com.mygrocery.data.model.item.Item;
 
 public class GroceryFragment extends Fragment implements OnItemClickListener {
 
     private FragmentManager fragmentManager;
+    private static List<Item> pendingItems;
+
+    @Contract("_ -> new")
+    public static GroceryFragment newInstance(List<Item> items) {
+        pendingItems = items;
+        return new GroceryFragment();
+    }
 
     @Nullable
     @Override
@@ -32,7 +43,7 @@ public class GroceryFragment extends Fragment implements OnItemClickListener {
         fragmentManager = getFragmentManager();
         if (fragmentManager != null) {
             fragmentManager.beginTransaction()
-                    .add(R.id.container, GroceryMasterFragment.newInstance(this))
+                    .add(R.id.container, GroceryMasterFragment.newInstance(this, pendingItems))
                     .commit();
         }
     }

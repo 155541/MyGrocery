@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.TextView;
 import revolhope.splanes.com.mygrocery.R;
 import revolhope.splanes.com.mygrocery.data.model.User;
+import revolhope.splanes.com.mygrocery.data.model.item.Item;
 import revolhope.splanes.com.mygrocery.helpers.database.AppDatabase;
 import revolhope.splanes.com.mygrocery.helpers.database.AppDatabaseCallback;
 import revolhope.splanes.com.mygrocery.helpers.database.model.Preferences;
@@ -108,17 +109,28 @@ public class LoaderActivity extends AppCompatActivity {
 
     private void initialize() {
         final AppFirebase appFirebase = AppFirebase.getInstance();
-        appFirebase.fetchItems(AppRepository.getAppUser().getId(),
-                new AppFirebase.OnComplete() {
+        appFirebase.fetchItems(AppRepository.getAppUser().getId(), new AppFirebase.OnComplete() {
             @Override
             public void taskCompleted(boolean success, Object... parameters) {
+                if (success) {
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    if (parameters != null) {
+                        Item[] items = new Item[parameters.length];
+                        int i = 0;
+                        for (Object o : parameters) {
+                            items[i] = (Item) o;
+                            i++;
+                        }
+                        intent.putExtra(MainActivity.ITEMS, items);
+                    }
+                    /*
+                     * appFirebase.startServices();
+                     */
+                    startActivity(intent);
+                    setResult(Activity.RESULT_OK);
+                    finish();
+                }
             }
         });
-        /*appFirebase.startServices();
-        */
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        startActivity(intent);
-        setResult(Activity.RESULT_OK);
-        finish();
     }
 }

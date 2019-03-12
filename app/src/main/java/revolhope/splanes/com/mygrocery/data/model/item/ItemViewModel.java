@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +16,7 @@ public class ItemViewModel extends ViewModel {
     private MutableLiveData<Filter> filter = new MutableLiveData<>();
     private MutableLiveData<List<Item>> items = new MutableLiveData<>();
 
-    public ItemViewModel(String[] filterArray) {
+    ItemViewModel(String[] filterArray) {
         this.filterArray = filterArray;
     }
 
@@ -27,6 +26,14 @@ public class ItemViewModel extends ViewModel {
 
     public LiveData<List<Item>> getItems() {
         return items;
+    }
+
+    public List<Item> getItemsSafe() {
+        List<Item> aux = new ArrayList<>();
+        if (items.getValue() != null) {
+            aux.addAll(items.getValue());
+        }
+        return aux;
     }
 
     public void filterDataChanged(int index) {

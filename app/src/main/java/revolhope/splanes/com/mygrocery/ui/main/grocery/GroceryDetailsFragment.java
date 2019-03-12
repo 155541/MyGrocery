@@ -5,10 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.transition.Fade;
 import androidx.transition.Slide;
@@ -27,6 +25,7 @@ public class GroceryDetailsFragment extends Fragment {
         GroceryDetailsFragment.item = item;
         return new GroceryDetailsFragment();
     }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
