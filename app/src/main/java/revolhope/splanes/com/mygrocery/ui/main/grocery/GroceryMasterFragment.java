@@ -39,13 +39,13 @@ public class GroceryMasterFragment extends Fragment implements LifecycleOwner {
             R.drawable.ic_priority_medium, R.drawable.ic_priority_low
     };
     private static String[] filterStrings;
-    private static OnShowDetails showDetails;
+    private static OnItemClickListener onItemClickListener;
     private Context context;
     private GroceryListAdapter adapter;
     private ItemViewModel itemViewModel;
 
-    static GroceryMasterFragment newInstance(OnShowDetails details) {
-        showDetails = details;
+    static GroceryMasterFragment newInstance(OnItemClickListener listener) {
+        onItemClickListener = listener;
         return new GroceryMasterFragment();
     }
 
@@ -58,7 +58,7 @@ public class GroceryMasterFragment extends Fragment implements LifecycleOwner {
         filterStrings = context.getResources().getStringArray(R.array.filters);
         itemViewModel = ViewModelProviders.of(this,
                 new ItemViewModelFactory(filterStrings)).get(ItemViewModel.class);
-        adapter = new GroceryListAdapter(context, showDetails);
+        adapter = new GroceryListAdapter(context, onItemClickListener);
 
         setEnterTransition(new Fade(Fade.IN));
         setExitTransition(new Fade(Fade.OUT));
