@@ -28,6 +28,8 @@ import revolhope.splanes.com.mygrocery.data.model.item.Item;
 import revolhope.splanes.com.mygrocery.data.model.item.ItemViewModel;
 import revolhope.splanes.com.mygrocery.data.model.item.ItemViewModelFactory;
 import revolhope.splanes.com.mygrocery.helpers.repository.AppRepository;
+import revolhope.splanes.com.mygrocery.ui.main.grocery.item.ItemActivity;
+import revolhope.splanes.com.mygrocery.ui.main.grocery.item.OnCreateItemListener;
 
 public class GroceryMasterFragment extends Fragment implements LifecycleOwner {
 
@@ -40,12 +42,15 @@ public class GroceryMasterFragment extends Fragment implements LifecycleOwner {
     };
     private static String[] filterStrings;
     private static OnItemClickListener onItemClickListener;
+    private static OnCreateItemListener onCreateItemListener;
     private Context context;
     private GroceryListAdapter adapter;
     private ItemViewModel itemViewModel;
 
-    static GroceryMasterFragment newInstance(OnItemClickListener listener) {
-        onItemClickListener = listener;
+    static GroceryMasterFragment newInstance(OnItemClickListener itemClickListener,
+                                             OnCreateItemListener createItemListener) {
+        onItemClickListener = itemClickListener;
+        onCreateItemListener = createItemListener;
         return new GroceryMasterFragment();
     }
 
@@ -127,14 +132,23 @@ public class GroceryMasterFragment extends Fragment implements LifecycleOwner {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(context, ItemActivity.class);
+                i.putExtra(ItemActivity.CALLBACK, onCreateItemListener);
                 startActivity(i);
             }
         });
     }
 
-    @Override
+    /*@Override
     public void onResume() {
         adapter.update(itemViewModel.getFilteredItems());
         super.onResume();
+    }*/
+
+    void itemCreated(Item item) {
+        List<Item> items = itemViewModel.getItems().getValue();
+        if (items != null) {
+            items.add(item);
+            itemViewModel.itemsDataChanged(items);
+        }
     }
 }

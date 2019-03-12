@@ -31,6 +31,7 @@ import org.jetbrains.annotations.Contract;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
@@ -41,6 +42,7 @@ import revolhope.splanes.com.mygrocery.helpers.repository.AppRepository;
 
 public class ItemActivity extends AppCompatActivity implements LifecycleOwner {
 
+    public static final String CALLBACK = "ItemActivityCallback";
     private int selectedCategory = 0;
     private int selectedPriority = 1;
 
@@ -48,6 +50,7 @@ public class ItemActivity extends AppCompatActivity implements LifecycleOwner {
     private Calendar reminder;
     private LifecycleRegistry lifecycleRegistry;
     private ItemFormViewModel itemFormViewModel;
+    private OnCreateItemListener onCreateItemListener;
 
     private TextInputEditText editTextName;
     private TextInputEditText editTextAmount;
@@ -63,6 +66,10 @@ public class ItemActivity extends AppCompatActivity implements LifecycleOwner {
         lifecycleRegistry = new LifecycleRegistry(this);
         lifecycleRegistry.markState(Lifecycle.State.CREATED);
         context = this;
+        if (getIntent().hasExtra(CALLBACK)) {
+            onCreateItemListener = (OnCreateItemListener) getIntent()
+                    .getSerializableExtra(CALLBACK);
+        }
 
         final TextInputLayout layoutName = findViewById(R.id.textInputLayoutName);
         final TextInputLayout layoutAmount = findViewById(R.id.textInputLayoutAmount);
@@ -97,12 +104,17 @@ public class ItemActivity extends AppCompatActivity implements LifecycleOwner {
                     item.setBought(0);
                     item.setCategory(selectedCategory);
                     item.setPriority(selectedPriority);
-                    item.setUsersTarget(Arrays.asList(defaultTarget.split("\n")));
+                    List<String> targets = Arrays.asList(defaultTarget.split("\n"));
+                    if (AppRepository.getAppUser().getDefaultUserTarget() != null)
+                        targets.add(AppRepository.getAppUser().getDefaultUserTarget());
+                    item.setUsersTarget(targets);
                     Calendar now = Calendar.getInstance();
                     item.setDateCreated(now.getTimeInMillis());
                     item.setDateReminder(reminder.after(now) ? reminder.getTimeInMillis() : 0);
                     item.setUserCreated(AppRepository.getAppUser().getId());
-                    AppRepository.addItem(item);
+                    if (onCreateItemListener != null) {
+                        onCreateItemListener.createItem(item);
+                    }
                     setResult(Activity.RESULT_OK);
                     finish();
                 }

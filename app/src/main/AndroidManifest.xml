@@ -13,7 +13,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
         <activity
-            android:name=".ui.main.grocery.ItemActivity"
+            android:name=".ui.main.grocery.item.ItemActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:label="@string/title_activity_item">
             <intent-filter>
