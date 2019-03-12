@@ -4,6 +4,6 @@ import android.view.View;
 
 import revolhope.splanes.com.mygrocery.data.model.item.Item;
 
-public interface OnShowDetails {
-    void showDetails(Item item, View sharedViews);
+public interface OnItemClickListener {
+    void onItemClick(Item... item, View... sharedViews);
 }
