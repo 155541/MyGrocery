@@ -85,6 +85,64 @@ public class AppFirebase {
         });
     }
 
+    public void pushItem(@NonNull final Item newItem, @NonNull final OnComplete onComplete) {
+        resolveEmails(newItem.getUsersTarget(), new OnComplete() {
+            @Override
+            public void taskCompleted(boolean success, Object... parameters) {
+                if (success) {
+                    final String[] targetIds = (String[]) parameters;
+                    final DatabaseReference dbRef = firebaseDatabase.getReference(db_item);
+                    dbRef.child(newItem.getId()).push().setValue(newItem, 
+                                                                 new DatabaseReference.CompletionListener() {
+                        @Override
+                        public void onComplete(@Nullable DatabaseError databaseError,
+                                               @NonNull DatabaseReference databaseReference) {
+                            if (databaseError == null) {
+                                for (String id : targetId) {
+                                    dbRef.child(id).push().setValue(newItem, null);
+                                }
+                                onComplete.taskCompleted(true);
+                            } else {
+                                onComplete.taskCompleted(false, databaseError.getMessage());
+                            }
+                        }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            onComplete.taskCompleted(false, databaseError.getMessage());
+                        }
+                    });
+                }
+                else {
+                    onComplete.taskCompleted(false, parameters);
+                }
+            }
+        });
+    }
+    
+    public void resolveEmails(final List<String> emails, @NonNull final OnComplete onComplete) {
+        List<String> ids = new ArrayList<>();
+        DatabaseReference dRef = firebaseDatabase.getReference(db_user);
+        dRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                User u;
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    if (emails.isEmpty()) break;
+                    u = snapshot.getValue(User.class);
+                    if (u != null && emails.contains(u.getEmail())) {
+                        ids.add(u.getId());
+                        emails.remove(u.getEmail());
+                    }
+                }
+                onComplete.taskCompleted(true, ids.toArray(new String[0]));
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                onComplete.taskCompleted(false, databaseError.getMessage());
+            }
+        });
+    }
+    
     public void fetchItems(@NonNull final String userId, @NonNull final OnComplete onComplete) {
         DatabaseReference dRef = firebaseDatabase.getReference(db_item);
         dRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -107,7 +165,6 @@ public class AppFirebase {
                 onComplete.taskCompleted(false, databaseError.getMessage());
             }
         });
-
     }
 
     // ???
