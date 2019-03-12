@@ -14,7 +14,7 @@ import androidx.fragment.app.FragmentManager;
 import revolhope.splanes.com.mygrocery.R;
 import revolhope.splanes.com.mygrocery.data.model.item.Item;
 
-public class GroceryFragment extends Fragment implements OnShowDetails {
+public class GroceryFragment extends Fragment implements OnItemClickListener {
 
     private FragmentManager fragmentManager;
 
@@ -37,13 +37,14 @@ public class GroceryFragment extends Fragment implements OnShowDetails {
     }
 
     @Override
-    public void showDetails(Item item, View view) {
-        ViewCompat.setTransitionName(view, item.getId());
-        fragmentManager
-                .beginTransaction()
-                .addSharedElement(view, item.getId())
-                .replace(R.id.container, GroceryDetailsFragment.newInstance(item))
-                .addToBackStack(null)
-                .commit();
+    public void onItemClick(Item itemClicked, View... sharedViews) {
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        for (View view : sharedViews) {
+            ViewCompat.setTransitionName(view, item.getId() + view.getId());
+            transaction.addSharedElement(view, item.getId() + view.getId());
+        }
+        transaction.replace(R.id.container, GroceryDetailsFragment.newInstance(item))
+                   .addToBackStack(null)
+                   .commit();
     }
 }
