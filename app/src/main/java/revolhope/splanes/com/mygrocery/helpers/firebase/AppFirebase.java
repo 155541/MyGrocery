@@ -14,6 +14,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import revolhope.splanes.com.mygrocery.data.model.item.Item;
 import revolhope.splanes.com.mygrocery.data.model.User;
 
@@ -98,17 +101,13 @@ public class AppFirebase {
                         public void onComplete(@Nullable DatabaseError databaseError,
                                                @NonNull DatabaseReference databaseReference) {
                             if (databaseError == null) {
-                                for (String id : targetId) {
+                                for (String id : targetIds) {
                                     dbRef.child(id).push().setValue(newItem, null);
                                 }
                                 onComplete.taskCompleted(true);
                             } else {
                                 onComplete.taskCompleted(false, databaseError.getMessage());
                             }
-                        }
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-                            onComplete.taskCompleted(false, databaseError.getMessage());
                         }
                     });
                 }
@@ -119,8 +118,8 @@ public class AppFirebase {
         });
     }
     
-    public void resolveEmails(final List<String> emails, @NonNull final OnComplete onComplete) {
-        List<String> ids = new ArrayList<>();
+    private void resolveEmails(final List<String> emails, @NonNull final OnComplete onComplete) {
+        final List<String> ids = new ArrayList<>();
         DatabaseReference dRef = firebaseDatabase.getReference(db_user);
         dRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -134,7 +133,7 @@ public class AppFirebase {
                         emails.remove(u.getEmail());
                     }
                 }
-                onComplete.taskCompleted(true, ids.toArray(new String[0]));
+                onComplete.taskCompleted(true, ids.toArray(new Object[0]));
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
