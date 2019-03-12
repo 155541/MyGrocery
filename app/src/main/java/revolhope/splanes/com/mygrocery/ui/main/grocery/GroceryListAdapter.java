@@ -30,13 +30,13 @@ public class GroceryListAdapter extends RecyclerView.Adapter<GroceryListAdapter.
     };
 
     private Context context;
-    private OnShowDetails onShowDetails;
+    private OnItemClickListener onItemClickListener;
     private List<Item> items;
 
-    GroceryListAdapter(Context context, OnShowDetails onShowDetails) {
+    GroceryListAdapter(Context context, OnItemClickListener onItemClickListener) {
         this.context = context;
         this.items = new ArrayList<>();
-        this.onShowDetails = onShowDetails;
+        this.onItemClickListener = onItemClickListener;
     }
 
     @NonNull
@@ -84,7 +84,7 @@ public class GroceryListAdapter extends RecyclerView.Adapter<GroceryListAdapter.
                 @Override
                 public void onClick(View v) {
                     Item item = items.get(getAdapterPosition());
-                    onShowDetails.showDetails(item, textViewItemName);
+                    onItemClickListener.onItemClick(item, textViewItemName);
                 }
             });
         }
