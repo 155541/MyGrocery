@@ -14,12 +14,10 @@ import androidx.fragment.app.FragmentTransaction;
 
 import revolhope.splanes.com.mygrocery.R;
 import revolhope.splanes.com.mygrocery.data.model.item.Item;
-import revolhope.splanes.com.mygrocery.ui.main.grocery.item.OnCreateItemListener;
 
-public class GroceryFragment extends Fragment implements OnItemClickListener, OnCreateItemListener {
+public class GroceryFragment extends Fragment implements OnItemClickListener {
 
-    transient private FragmentManager fragmentManager;
-    transient private GroceryMasterFragment groceryMasterFragment;
+    private FragmentManager fragmentManager;
 
     @Nullable
     @Override
@@ -33,9 +31,8 @@ public class GroceryFragment extends Fragment implements OnItemClickListener, On
         super.onViewCreated(view, savedInstanceState);
         fragmentManager = getFragmentManager();
         if (fragmentManager != null) {
-            groceryMasterFragment = GroceryMasterFragment.newInstance(this, this);
             fragmentManager.beginTransaction()
-                    .add(R.id.container, groceryMasterFragment)
+                    .add(R.id.container, GroceryMasterFragment.newInstance(this))
                     .commit();
         }
     }
@@ -50,10 +47,5 @@ public class GroceryFragment extends Fragment implements OnItemClickListener, On
         transaction.replace(R.id.container, GroceryDetailsFragment.newInstance(itemClicked))
                    .addToBackStack(null)
                    .commit();
-    }
-
-    @Override
-    public void createItem(Item item) {
-        groceryMasterFragment.itemCreated(item);
     }
 }

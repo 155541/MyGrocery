@@ -13,14 +13,6 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
         <activity
-            android:name=".ui.main.grocery.item.ItemActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:label="@string/title_activity_item">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".ui.login.LoginActivity"
             android:label="@string/title_activity_login"
             android:windowSoftInputMode="adjustPan">

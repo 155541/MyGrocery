@@ -1,7 +1,6 @@
 package revolhope.splanes.com.mygrocery.ui.main.grocery;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,13 +12,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LifecycleOwner;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.Fade;
 
+import org.jetbrains.annotations.Contract;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import revolhope.splanes.com.mygrocery.R;
@@ -28,10 +30,10 @@ import revolhope.splanes.com.mygrocery.data.model.item.Item;
 import revolhope.splanes.com.mygrocery.data.model.item.ItemViewModel;
 import revolhope.splanes.com.mygrocery.data.model.item.ItemViewModelFactory;
 import revolhope.splanes.com.mygrocery.helpers.repository.AppRepository;
-import revolhope.splanes.com.mygrocery.ui.main.grocery.item.ItemActivity;
-import revolhope.splanes.com.mygrocery.ui.main.grocery.item.OnCreateItemListener;
+import revolhope.splanes.com.mygrocery.ui.main.grocery.item.GroceryItemFragment;
+import revolhope.splanes.com.mygrocery.ui.main.grocery.item.OnItemCreatedListener;
 
-public class GroceryMasterFragment extends Fragment implements LifecycleOwner {
+public class GroceryMasterFragment extends Fragment implements OnItemCreatedListener {
 
     private static final int[] filterIcons = new int[]{
             R.drawable.ic_grocery, R.drawable.ic_help,
@@ -41,32 +43,34 @@ public class GroceryMasterFragment extends Fragment implements LifecycleOwner {
             R.drawable.ic_priority_medium, R.drawable.ic_priority_low
     };
     private static String[] filterStrings;
+    private static OnItemCreatedListener onItemCreatedListener;
     private static OnItemClickListener onItemClickListener;
-    private static OnCreateItemListener onCreateItemListener;
+
     private Context context;
+    private FragmentManager fragmentManager;
     private GroceryListAdapter adapter;
     private ItemViewModel itemViewModel;
 
-    static GroceryMasterFragment newInstance(OnItemClickListener itemClickListener,
-                                             OnCreateItemListener createItemListener) {
+    @Contract("_ -> new")
+    static GroceryMasterFragment newInstance(OnItemClickListener itemClickListener) {
         onItemClickListener = itemClickListener;
-        onCreateItemListener = createItemListener;
         return new GroceryMasterFragment();
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getContext() == null) return;
-        else context = getContext();
+        if (getContext() == null || getFragmentManager() == null) return;
+        else {
+            context = getContext();
+            fragmentManager = getFragmentManager();
+        }
 
         filterStrings = context.getResources().getStringArray(R.array.filters);
         itemViewModel = ViewModelProviders.of(this,
                 new ItemViewModelFactory(filterStrings)).get(ItemViewModel.class);
         adapter = new GroceryListAdapter(context, onItemClickListener);
-
-        setEnterTransition(new Fade(Fade.IN));
-        setExitTransition(new Fade(Fade.OUT));
+        onItemCreatedListener = this;
     }
 
     @Nullable
@@ -131,24 +135,32 @@ public class GroceryMasterFragment extends Fragment implements LifecycleOwner {
         view.findViewById(R.id.buttonAdd).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(context, ItemActivity.class);
-                i.putExtra(ItemActivity.CALLBACK, onCreateItemListener);
-                startActivity(i);
+                setEnterTransition(new Fade(Fade.IN));
+                setExitTransition(new Fade(Fade.OUT));
+                fragmentManager.beginTransaction()
+                        .replace(R.id.container, GroceryItemFragment
+                                .newInstance(onItemCreatedListener))
+                        .addToBackStack(null)
+                        .commit();
             }
         });
     }
 
-    /*@Override
+    @Override
     public void onResume() {
         adapter.update(itemViewModel.getFilteredItems());
         super.onResume();
-    }*/
+    }
 
-    void itemCreated(Item item) {
+    public void onItemCreated(Item item) {
         List<Item> items = itemViewModel.getItems().getValue();
         if (items != null) {
             items.add(item);
-            itemViewModel.itemsDataChanged(items);
         }
+        else {
+            items = new ArrayList<>();
+            items.add(item);
+        }
+        itemViewModel.itemsDataChanged(items);
     }
 }
