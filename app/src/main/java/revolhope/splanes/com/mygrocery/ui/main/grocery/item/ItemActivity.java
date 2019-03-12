@@ -132,7 +132,7 @@ public class ItemActivity extends AppCompatActivity implements LifecycleOwner {
                     DialogPicker dialogPicker = new DialogPicker();
                     dialogPicker.setCancelable(false);
                     dialogPicker.setType(DialogPicker.CATEGORIES);
-                    dialogPicker.setCallback(new DialogPicker.Callback() {
+                    dialogPicker.setCallback(new DialogPicker.OnDialogResultListener() {
                         @Override
                         public void onClick(int option) {
                             editTextCategory.setText(context.getResources()
@@ -153,7 +153,7 @@ public class ItemActivity extends AppCompatActivity implements LifecycleOwner {
                     DialogPicker dialogPicker = new DialogPicker();
                     dialogPicker.setCancelable(false);
                     dialogPicker.setType(DialogPicker.PRIORITY);
-                    dialogPicker.setCallback(new DialogPicker.Callback() {
+                    dialogPicker.setCallback(new DialogPicker.OnDialogResultListener() {
                         @Override
                         public void onClick(int option) {
                             editTextPriority.setText(context.getResources()
