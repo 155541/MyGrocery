@@ -1,4 +1,4 @@
-package revolhope.splanes.com.mygrocery.ui.main.grocery;
+package revolhope.splanes.com.mygrocery.ui.main.grocery.item;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -22,7 +22,7 @@ public class DialogPicker extends DialogFragment {
     static final int CATEGORIES = 1;
     static final int PRIORITY = 2;
 
-    private Callback callback;
+    private OnDialogResultListener callback;
     private int option = 0;
     private int type = -1;
 
@@ -67,11 +67,11 @@ public class DialogPicker extends DialogFragment {
         this.type = type;
     }
 
-    void setCallback(Callback callback) {
+    void setCallback(OnDialogResultListener callback) {
         this.callback = callback;
     }
 
-    public interface Callback {
+    public interface OnDialogResultListener {
         void onClick(int option);
     }
 }
