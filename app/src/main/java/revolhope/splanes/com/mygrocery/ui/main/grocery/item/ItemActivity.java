@@ -1,4 +1,4 @@
-package revolhope.splanes.com.mygrocery.ui.main.grocery;
+package revolhope.splanes.com.mygrocery.ui.main.grocery.item;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
