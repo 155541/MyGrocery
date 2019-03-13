@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="android:windowActivityTransitions">true</item>
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -18,8 +18,12 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <!-- Button style -->
+    <style name="AppButtonStyle" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:windowSoftInputMode">stateHidden</item>
+    </style>
     <!--Dialog Style-->
-    <style name="AppDialogStyle" parent="Theme.AppCompat.Light.Dialog">
+    <style name="AppDialogStyle" parent="Theme.MaterialComponents.Dialog.MinWidth">
         <item name="android:windowBackground">@drawable/dialog_background_rounded</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowIsFloating">true</item>
@@ -27,31 +31,24 @@
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:fontFamily">sans-serif-condensed</item>
-        <!--    #WINDOW PARAMS <<<<<<<<<<<<<<<<
-        <item name="android:windowNoTitle">false</item>
-        <item name="android:windowFullscreen">false</item>
-        <item name="android:windowBackground">@drawable/dialog_background_rounded</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowIsFloating">true</item>
-        &lt;!&ndash;    #CHECK IF WORKS <<<<<<<<<<<<<<<<&ndash;&gt;
-        &lt;!&ndash;    #ANIMATIONS     <<<<<<<<<<<<<<<<&ndash;&gt;
+        <item name="android:textColor">@android:color/black</item>
+        <item name="textColorAlertDialogListItem">@android:color/black</item>
+        <item name="android:buttonBarPositiveButtonStyle">@style/DialogButtonStyle</item>
+        <item name="android:buttonBarNegativeButtonStyle">@style/DialogButtonStyle</item>
+        <item name="android:buttonBarNeutralButtonStyle">@style/DialogButtonStyle</item>
+    </style>
 
-        &lt;!&ndash;    #COLOR SCHEME   <<<<<<<<<<<<<<<<&ndash;&gt;
-        <item name="android:colorPressedHighlight">@color/colorPrimaryDark</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorPrimary">@android:color/white</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        &lt;!&ndash;    #FONT STYLE     <<<<<<<<<<<<<<<<&ndash;&gt;
-        <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textColor">@color/colorPrimaryDark</item>-->
+    <style name="DialogButtonStyle" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="strokeColor">@color/colorPrimary</item>
+        <item name="rippleColor">@color/colorLight</item>
     </style>
 
     <!--Bottom Sheet Dialog Style-->
     <style name="AppBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/AppModalStyle</item>
     </style>
-    <style name="AppModalStyle"
-        parent="Widget.Design.BottomSheet.Modal">
+    <style name="AppModalStyle" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@drawable/dialog_background_rounded</item>
     </style>
 

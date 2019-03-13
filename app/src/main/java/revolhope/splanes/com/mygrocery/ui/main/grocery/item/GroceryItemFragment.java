@@ -18,7 +18,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.transition.Slide;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -77,7 +76,7 @@ public class GroceryItemFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.activity_item, container, false);
+        return inflater.inflate(R.layout.fragment_grocery_item, container, false);
     }
 
     @Override
@@ -152,8 +151,6 @@ public class GroceryItemFragment extends Fragment {
             }
         });
 
-        clearFocus();
-
         editTextCategory.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -170,7 +167,7 @@ public class GroceryItemFragment extends Fragment {
                         }
                     });
                     dialogPicker.show(fragmentManager, DialogPicker.TAG);
-                    clearFocus();
+                    editTextCategory.clearFocus();
                 }
             }
         });
@@ -192,7 +189,7 @@ public class GroceryItemFragment extends Fragment {
                     });
                     dialogPicker.show(fragmentManager, DialogPicker.TAG);
                 }
-                clearFocus();
+                editTextPriority.clearFocus();
             }
         });
 
@@ -229,7 +226,7 @@ public class GroceryItemFragment extends Fragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
                     showDatePicker();
-                    clearFocus();
+                    editTextReminder.clearFocus();
                 }
             }
         });
@@ -274,18 +271,8 @@ public class GroceryItemFragment extends Fragment {
                         Locale.FRANCE);
                 editTextReminder.setText(sdf.format(reminder.getTime()));
                 imageViewReminder.setVisibility(View.VISIBLE);
-                clearFocus();
             }
         }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
         timePickerDialog.show();
-    }
-
-    private void clearFocus() {
-        editTextName.clearFocus();
-        editTextAmount.clearFocus();
-        editTextCategory.clearFocus();
-        editTextPriority.clearFocus();
-        editTextDefault.clearFocus();
-        editTextReminder.clearFocus();
     }
 }

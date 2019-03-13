@@ -37,7 +37,7 @@ public class SelectFilterModal extends BottomSheetDialogFragment {
         numberPickerFilter.setValue(0);
         numberPickerFilter.setMinValue(0);
         numberPickerFilter.setMaxValue(data.length-1);
-        numberPickerFilter.setWrapSelectorWheel(false);
+        //numberPickerFilter.setWrapSelectorWheel(false); // -> INFINITE LOOP
         numberPickerFilter.setDisplayedValues(data);
         numberPickerFilter.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override

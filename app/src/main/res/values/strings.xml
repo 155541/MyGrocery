@@ -1,8 +1,8 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name">MyGrocery</string>
     <string name="tab_title_1">Historial</string>
-    <string name="tab_title_2">Llista Compra</string>
-    <string name="tab_title_3">Notificacions</string>
+    <string name="tab_title_2">Compra</string>
+    <string name="tab_title_3">Alertes</string>
     <string name="prompt_amount">Quantitat</string>
     <string name="prompt_priority">Prioritat</string>
     <string name="hint_item">Article</string>
