@@ -9,6 +9,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
 import android.widget.TextView;
+
+import java.util.Arrays;
+
 import revolhope.splanes.com.mygrocery.R;
 import revolhope.splanes.com.mygrocery.data.model.User;
 import revolhope.splanes.com.mygrocery.data.model.item.Item;
@@ -16,9 +19,10 @@ import revolhope.splanes.com.mygrocery.helpers.database.AppDatabase;
 import revolhope.splanes.com.mygrocery.helpers.database.AppDatabaseCallback;
 import revolhope.splanes.com.mygrocery.helpers.database.model.Preferences;
 import revolhope.splanes.com.mygrocery.helpers.firebase.AppFirebase;
+import revolhope.splanes.com.mygrocery.helpers.firebase.service.ItemService;
 import revolhope.splanes.com.mygrocery.helpers.repository.AppRepository;
 import revolhope.splanes.com.mygrocery.ui.login.LoginActivity;
-import revolhope.splanes.com.mygrocery.ui.main.MainActivity;
+import revolhope.splanes.com.mygrocery.ui.grocery.MainActivity;
 
 public class LoaderActivity extends AppCompatActivity {
     private TextView textViewProgress;
@@ -123,9 +127,17 @@ public class LoaderActivity extends AppCompatActivity {
                         }
                         intent.putExtra(MainActivity.ITEMS, items);
                     }
-                    /*
-                     * appFirebase.startServices();
-                     */
+                    Intent service = new Intent(getApplicationContext(), ItemService.class);
+                    startService(service);
+                    appFirebase.fetchUsers(new AppFirebase.OnComplete(){
+                        @Override
+                        public void taskCompleted(boolean success, Object... parameters) {
+                            if (success) {
+                                User[] users = (User[]) parameters;
+                                AppRepository.setUsers(Arrays.asList(users));
+                            }
+                        }
+                    });
                     startActivity(intent);
                     setResult(Activity.RESULT_OK);
                     finish();

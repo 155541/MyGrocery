@@ -25,8 +25,8 @@ public class AppFirebase {
 
     private static final String db_user = "db/db-user";
     private static final String db_item = "db/db-data/db-pending-item";
-    private static final String db_notification = "db/db-data/notification";
-    private static final String db_historic = "db/db-data/historic";
+    private static final String db_notification = "db/db-data/db-notification";
+    private static final String db_historic = "db/db-data/db-historic";
 
     public interface OnComplete {
         void taskCompleted(boolean success, Object... parameters);
@@ -48,8 +48,6 @@ public class AppFirebase {
         }
         return instance;
     }
-
-
 
     public void pushUser(@NonNull User newUser, @NonNull final OnComplete onComplete) {
 
@@ -89,6 +87,25 @@ public class AppFirebase {
         });
     }
 
+    public void fetchUsers(@NonNull final OnComplete onComplete) {
+        DatabaseReference dbRef = firebaseDatabase.getReference(db_user);
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<User> users = new ArrayList<>();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    User u = snapshot.getValue(User.class);
+                    users.add(u);
+                }
+                onComplete.taskCompleted(true, ((Object[])(users.toArray(new User[0]))));
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                onComplete.taskCompleted(false, databaseError.getMessage());
+            }
+        });
+    }
+
     public void pushItem(@NonNull final Item newItem, @NonNull final OnComplete onComplete) {
         resolveEmails(newItem.getUsersTarget(), new OnComplete() {
             @Override
@@ -111,6 +128,9 @@ public class AppFirebase {
                             }
                         }
                     });
+                    final DatabaseReference dbRefNot = firebaseDatabase.getReference(db_notification);
+                    dbRefNot.child(AppRepository.getAppUser().getId()).push().setValue(newItem,
+                            null);
                 }
                 else {
                     onComplete.taskCompleted(false, parameters);
@@ -168,9 +188,26 @@ public class AppFirebase {
         });
     }
 
-    // ???
-    public boolean isCurrentlySignedIn() {
-        return firebaseAuth.getCurrentUser() != null;
+    public void deleteItem(@NonNull final String itemId, @NonNull final OnComplete onComplete) {
+        final DatabaseReference dRef = firebaseDatabase.getReference(db_item)
+                .child(AppRepository.getAppUser().getId());
+        dRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Item aux;
+                for (DataSnapshot dataItem : dataSnapshot.getChildren()) {
+                    aux = dataItem.getValue(Item.class);
+                    if (dataItem.getKey() != null && aux != null && aux.getId().equals(itemId)) {
+                        dRef.child(dataItem.getKey()).removeValue();
+                        break;
+                    }
+                }
+                onComplete.taskCompleted(true);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
+        });
     }
 
     public void signUp(String email, String password, final OnComplete onComplete) {
@@ -206,11 +243,5 @@ public class AppFirebase {
 
     public void signOut() {
         firebaseAuth.signOut();
-    }
-
-    public void findItems(int filter, final OnComplete onComplete) {
-
-        FirebaseDatabase db = FirebaseDatabase.getInstance();
-
     }
 }

@@ -1,4 +1,4 @@
-package revolhope.splanes.com.mygrocery.ui.main.grocery;
+package revolhope.splanes.com.mygrocery.ui.grocery.list;
 
 import android.content.Context;
 import android.view.LayoutInflater;

@@ -1,4 +1,4 @@
-package revolhope.splanes.com.mygrocery.ui.main.grocery;
+package revolhope.splanes.com.mygrocery.ui.grocery.list;
 
 import android.app.Activity;
 import android.content.Context;
@@ -9,21 +9,18 @@ import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.Fade;
 
-import org.jetbrains.annotations.Contract;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import revolhope.splanes.com.mygrocery.R;
@@ -31,54 +28,40 @@ import revolhope.splanes.com.mygrocery.data.model.item.Filter;
 import revolhope.splanes.com.mygrocery.data.model.item.Item;
 import revolhope.splanes.com.mygrocery.data.model.item.ItemViewModel;
 import revolhope.splanes.com.mygrocery.data.model.item.ItemViewModelFactory;
-import revolhope.splanes.com.mygrocery.helpers.firebase.AppFirebase;
 import revolhope.splanes.com.mygrocery.helpers.repository.AppRepository;
-import revolhope.splanes.com.mygrocery.ui.main.grocery.item.GroceryItemFragment;
-import revolhope.splanes.com.mygrocery.ui.main.grocery.item.OnItemCreatedListener;
+import revolhope.splanes.com.mygrocery.ui.grocery.MainActivity;
 
-public class GroceryMasterFragment extends Fragment implements OnItemCreatedListener {
+public class FragmentGroceryList extends Fragment {
 
-    private static final int[] filterIcons = new int[]{
-            R.drawable.ic_grocery, R.drawable.ic_help,
-            R.drawable.ic_kitchen, R.drawable.ic_tool,
-            R.drawable.ic_device, R.drawable.ic_cake,
-            R.drawable.ic_home, R.drawable.ic_priority_high2,
-            R.drawable.ic_priority_medium, R.drawable.ic_priority_low
-    };
-    private static String[] filterStrings;
-    private static OnItemCreatedListener onItemCreatedListener;
-    private static OnItemClickListener onItemClickListener;
-    private static List<Item> pendingItems;
+    public static final String ARG_PENDING_ITEMS = "PendingItems";
+    private static String[] namesFilter;
 
     private Context context;
-    private Activity activity;
-    private FragmentManager fragmentManager;
+    private MainActivity activity;
     private GroceryListAdapter adapter;
     private ItemViewModel itemViewModel;
-
-    @Contract("_, _ -> new")
-    static GroceryMasterFragment newInstance(OnItemClickListener itemClickListener,
-                                             List<Item> items) {
-        onItemClickListener = itemClickListener;
-        pendingItems = items;
-        return new GroceryMasterFragment();
-    }
+    private List<Item> pendingItems;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getContext() == null || getFragmentManager() == null || getActivity() == null) return;
+        if (getContext() == null || getActivity() == null || getArguments() == null) return;
         else {
             context = getContext();
-            activity = getActivity();
-            fragmentManager = getFragmentManager();
+            activity = (MainActivity) getActivity();
+            pendingItems = Arrays.asList((Item[]) getArguments().getSerializable(ARG_PENDING_ITEMS));
         }
 
-        filterStrings = context.getResources().getStringArray(R.array.filters);
+        namesFilter = context.getResources().getStringArray(R.array.filters);
         itemViewModel = ViewModelProviders.of(this,
-                new ItemViewModelFactory(filterStrings)).get(ItemViewModel.class);
-        adapter = new GroceryListAdapter(context, onItemClickListener);
-        onItemCreatedListener = this;
+                new ItemViewModelFactory(namesFilter)).get(ItemViewModel.class);
+        adapter = new GroceryListAdapter(context, new OnItemClickListener() {
+            @Override
+            public void onItemClick(Item itemClicked, View... sharedViews) {
+                activity.setPendingItems(itemViewModel.getItemsSafe());
+                activity.showItemDetails(itemClicked);
+            }
+        });
     }
 
     @Nullable
@@ -94,8 +77,8 @@ public class GroceryMasterFragment extends Fragment implements OnItemCreatedList
         final ImageView imageViewAppliedFilter = view.findViewById(R.id.imageViewFilter);
         final TextView textViewAppliedFilter = view.findViewById(R.id.textViewFilter);
 
-        imageViewAppliedFilter.setImageResource(filterIcons[0]);
-        textViewAppliedFilter.setText(filterStrings[0]);
+        imageViewAppliedFilter.setImageResource(AppRepository.ICONS_FILTER[0]);
+        textViewAppliedFilter.setText(namesFilter[0]);
 
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewList);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -109,14 +92,14 @@ public class GroceryMasterFragment extends Fragment implements OnItemCreatedList
                 adapter.update(itemViewModel.getFilteredItems());
             }
         });
-        itemViewModel.itemsDataChanged(pendingItems);
+        itemViewModel.itemsDataChanged(new ArrayList<>(pendingItems));
         itemViewModel.filterDataChanged(0);
         itemViewModel.getFilter().observe(this, new Observer<Filter>() {
             @Override
             public void onChanged(@Nullable Filter filter) {
                 if (filter == null) return;
-                imageViewAppliedFilter.setImageResource(filterIcons[filter.getIndex()]);
-                textViewAppliedFilter.setText(filterStrings[filter.getIndex()]);
+                imageViewAppliedFilter.setImageResource(AppRepository.ICONS_FILTER[filter.getIndex()]);
+                textViewAppliedFilter.setText(namesFilter[filter.getIndex()]);
                 adapter.update(itemViewModel.getFilteredItems());
             }
         });
@@ -143,37 +126,21 @@ public class GroceryMasterFragment extends Fragment implements OnItemCreatedList
         view.findViewById(R.id.buttonAdd).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setEnterTransition(new Fade(Fade.IN));
+                activity.setPendingItems(itemViewModel.getItemsSafe());
+                activity.createNewItem();
                 setExitTransition(new Fade(Fade.OUT));
-                fragmentManager.beginTransaction()
-                        .replace(R.id.container, GroceryItemFragment
-                                .newInstance(onItemCreatedListener))
-                        .addToBackStack(null)
-                        .commit();
             }
         });
     }
 
-    public void onItemCreated(final Item item) {
-        AppFirebase firebase = AppFirebase.getInstance();
-        firebase.pushItem(item, new AppFirebase.OnComplete() {
-            @Override
-            public void taskCompleted(boolean success, Object... parameters) {
-                if (success) {
-                    Toast.makeText(context, "F*cking work", Toast.LENGTH_LONG).show();
-                    activity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            List<Item> items = itemViewModel.getItemsSafe();
-                            items.add(item);
-                            itemViewModel.itemsDataChanged(items);
-                        }
-                    });
-                }
-                else {
-                    Toast.makeText(context, "Oooopps...", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
+    public void addItem(Item item) {
+        List<Item> items = itemViewModel.getItemsSafe();
+        items.add(item);
+        pendingItems = items;
+        itemViewModel.itemsDataChanged(items);
+    }
+
+    public void updateItem(Item item) {
+
     }
 }

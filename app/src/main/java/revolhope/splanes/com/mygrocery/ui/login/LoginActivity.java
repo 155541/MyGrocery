@@ -29,7 +29,7 @@ import revolhope.splanes.com.mygrocery.data.login.LoginAsyncTask;
 import revolhope.splanes.com.mygrocery.data.login.LoginCallback;
 import revolhope.splanes.com.mygrocery.data.login.Result;
 import revolhope.splanes.com.mygrocery.data.model.User;
-import revolhope.splanes.com.mygrocery.ui.main.MainActivity;
+import revolhope.splanes.com.mygrocery.ui.grocery.MainActivity;
 
 public class LoginActivity extends AppCompatActivity implements LifecycleOwner {
 

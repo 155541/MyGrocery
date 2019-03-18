@@ -51,5 +51,9 @@
     <string name="invalid_item_amount">Quantitat mínima = 1</string>
     <string name="invalid_item_category">S\'ha d\'indicar una categoria</string>
     <string name="invalid_item_priority">S\'ha d\'indicar una prioritat</string>
-
+    <!--*************-->
+    <!--NOTIFICATIONS-->
+    <!--*************-->
+    <string name="channel_name">MyGrocery</string>
+    <string name="channel_description">Nou item creat!</string>
 </resources>

@@ -1,4 +1,4 @@
-package revolhope.splanes.com.mygrocery.ui.main.grocery.item;
+package revolhope.splanes.com.mygrocery.ui.grocery.edition;
 
 import androidx.annotation.Nullable;
 

@@ -1,19 +1,30 @@
-package revolhope.splanes.com.mygrocery.ui.main.grocery;
+package revolhope.splanes.com.mygrocery.ui.grocery.details;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.transition.Fade;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.jetbrains.annotations.Contract;
@@ -23,8 +34,10 @@ import java.util.Locale;
 
 import revolhope.splanes.com.mygrocery.R;
 import revolhope.splanes.com.mygrocery.data.model.item.Item;
+import revolhope.splanes.com.mygrocery.helpers.firebase.AppFirebase;
+import revolhope.splanes.com.mygrocery.ui.grocery.MainActivity;
 
-public class GroceryDetailsFragment extends Fragment {
+public class FragmentGroceryItemDetails extends Fragment {
 
     private final int[] iconCategory = new int[] {
             R.drawable.ic_help, R.drawable.ic_kitchen,
@@ -33,20 +46,22 @@ public class GroceryDetailsFragment extends Fragment {
     };
     private static Item item;
     private Context context;
+    private MainActivity activity;
     private FragmentManager fm;
 
     @Contract("_ -> new")
-    public static GroceryDetailsFragment newInstance(Item item) {
-        GroceryDetailsFragment.item = item;
-        return new GroceryDetailsFragment();
+    public static FragmentGroceryItemDetails newInstance(Item item) {
+        FragmentGroceryItemDetails.item = item;
+        return new FragmentGroceryItemDetails();
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setEnterTransition(new Fade(Fade.IN));
-        if (getContext() != null) {
+        if (getContext() != null && getActivity() != null) {
             context = getContext();
+            activity = (MainActivity) getActivity();
         }
         if (getFragmentManager() != null) {
             fm = getFragmentManager();
@@ -72,6 +87,8 @@ public class GroceryDetailsFragment extends Fragment {
         TextInputEditText editTextPriority = view.findViewById(R.id.editTextPriority);
         TextInputEditText editTextDefaultUser = view.findViewById(R.id.editTextDefaultUser);
         TextInputEditText editTextReminder = view.findViewById(R.id.editTextReminder);
+        MaterialButton buttonBuy = view.findViewById(R.id.buttonBuy);
+        MaterialButton buttonActions = view.findViewById(R.id.buttonActions);
 
         ImageView icon = view.findViewById(R.id.iconCategory);
         ImageView buttonBack = view.findViewById(R.id.buttonBack);
@@ -91,11 +108,51 @@ public class GroceryDetailsFragment extends Fragment {
             editTextReminder.setText("Sense recordatori");
         }
 
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        for (String target : item.getUsersTarget()) {
+            if (i > 0) sb.append("\n");
+            sb.append(target);
+            i++;
+        }
+        editTextDefaultUser.setText(sb.toString());
 
         buttonBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fm.popBackStack();
+                activity.showItemList();
+            }
+        });
+        buttonActions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final DialogActions dialogActions = new DialogActions();
+                dialogActions.setOnActionSelectedListener(
+                        new DialogActions.OnActionSelectedListener() {
+                    @Override
+                    public void onActionSelected(int option) {
+                        switch (option) {
+                            case DialogActions.ACTION_EDIT:
+                                Toast.makeText(context, "Edit", Toast.LENGTH_LONG).show();
+                                break;
+                            case DialogActions.ACTION_HISTORICAL:
+                                Toast.makeText(context, "Historic", Toast.LENGTH_LONG).show();
+                                break;
+                            case DialogActions.ACTION_DELETE:
+                                DialogDelete dialogDelete = new DialogDelete();
+                                dialogDelete.setOnConfirmListener(
+                                        new DialogDelete.OnConfirmListener() {
+                                    @Override
+                                    public void onConfirm() {
+                                        activity.deleteItem(item);
+                                    }
+                                });
+                                dialogDelete.show(fm, DialogDelete.TAG);
+                                break;
+                        }
+                    }
+                });
+                dialogActions.show(fm, DialogActions.TAG);
             }
         });
     }

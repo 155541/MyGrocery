@@ -1,4 +1,4 @@
-package revolhope.splanes.com.mygrocery.ui.main.grocery;
+package revolhope.splanes.com.mygrocery.ui.grocery.list;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -15,7 +15,7 @@ import revolhope.splanes.com.mygrocery.R;
 
 public class SelectFilterModal extends BottomSheetDialogFragment {
 
-    public static final String TAG = "SelectFilterModal";
+    static final String TAG = "SelectFilterModal";
     private int pickedValue = 0;
     private Callback callback;
 
@@ -56,7 +56,7 @@ public class SelectFilterModal extends BottomSheetDialogFragment {
         return view;
     }
 
-    public void setCallback(Callback callback) {
+    void setCallback(Callback callback) {
         this.callback = callback;
     }
 

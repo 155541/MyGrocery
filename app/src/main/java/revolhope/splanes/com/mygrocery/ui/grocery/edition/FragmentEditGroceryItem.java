@@ -1,4 +1,4 @@
-package revolhope.splanes.com.mygrocery.ui.main.grocery.item;
+package revolhope.splanes.com.mygrocery.ui.grocery.edition;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -36,17 +36,21 @@ import java.util.UUID;
 import revolhope.splanes.com.mygrocery.R;
 import revolhope.splanes.com.mygrocery.data.model.item.Item;
 import revolhope.splanes.com.mygrocery.helpers.repository.AppRepository;
+import revolhope.splanes.com.mygrocery.ui.grocery.MainActivity;
 
-public class GroceryItemFragment extends Fragment {
+public class FragmentEditGroceryItem extends Fragment {
 
     private int selectedCategory = 0;
     private int selectedPriority = 1;
 
-    private FragmentManager fragmentManager;
+    private static boolean _isUpdating;
+    private static Item _itemUpdating;
+
+    private MainActivity activity;
     private Context context;
+    private FragmentManager fragmentManager;
     private Calendar reminder;
     private ItemFormViewModel itemFormViewModel;
-    private static OnItemCreatedListener onItemCreatedListener;
 
     private TextInputEditText editTextName;
     private TextInputEditText editTextAmount;
@@ -56,16 +60,18 @@ public class GroceryItemFragment extends Fragment {
     private TextInputEditText editTextReminder;
     private ImageView imageViewReminder;
 
-    @Contract("_ -> new")
-    public static GroceryItemFragment newInstance(OnItemCreatedListener listener) {
-        onItemCreatedListener = listener;
-        return new GroceryItemFragment();
+    @Contract("_, _ -> new")
+    public static FragmentEditGroceryItem newInstance(boolean isUpdating, Item itemToUpdate) {
+        _isUpdating = isUpdating;
+        _itemUpdating = itemToUpdate;
+        return new FragmentEditGroceryItem();
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = getContext();
+        activity = (MainActivity) getActivity();
         fragmentManager = getFragmentManager();
         reminder = Calendar.getInstance();
         setEnterTransition(new Fade(Fade.IN));
@@ -83,7 +89,7 @@ public class GroceryItemFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (context == null || fragmentManager == null) return;
+        if (context == null || activity == null || fragmentManager == null) return;
 
         final TextInputLayout layoutName = view.findViewById(R.id.textInputLayoutName);
         final TextInputLayout layoutAmount = view.findViewById(R.id.textInputLayoutAmount);
@@ -111,7 +117,6 @@ public class GroceryItemFragment extends Fragment {
                     int intAmount = Integer.parseInt(amount);
 
                     Item item = new Item();
-                    item.setId(UUID.randomUUID().toString().replace("-", ""));
                     item.setItemName(name);
                     item.setAmount(intAmount);
                     item.setBought(0);
@@ -131,8 +136,13 @@ public class GroceryItemFragment extends Fragment {
                     item.setDateCreated(now.getTimeInMillis());
                     item.setDateReminder(reminder.after(now) ? reminder.getTimeInMillis() : 0);
                     item.setUserCreated(AppRepository.getAppUser().getId());
-                    onItemCreatedListener.onItemCreated(item);
-                    fragmentManager.popBackStack();
+                    if (_isUpdating) {
+                        item.setId(_itemUpdating.getId());
+                        activity.itemUpdated(item);
+                    } else {
+                        item.setId(UUID.randomUUID().toString().replace("-", ""));
+                        activity.newItemCreated(item);
+                    }
                 }
                 else {
                     layoutName.setError(null);
@@ -237,6 +247,20 @@ public class GroceryItemFragment extends Fragment {
                 imageViewReminder.setVisibility(View.GONE);
             }
         });
+
+        if (_isUpdating) {
+            editTextName.setText(_itemUpdating.getItemName());
+            editTextAmount.setText(String.valueOf(_itemUpdating.getAmount()));
+            editTextCategory.setText(context.getResources()
+                    .getStringArray(R.array.categories)[_itemUpdating.getCategory()]);
+            editTextPriority.setText(context.getResources()
+                    .getStringArray(R.array.priorities)[_itemUpdating.getPriority()]);
+            if (_itemUpdating.getDateReminder() > 0) {
+                editTextReminder.setText(
+                        new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE)
+                                .format(_itemUpdating.getDateReminder()));
+            }
+        }
     }
 
     private void showDatePicker() {
