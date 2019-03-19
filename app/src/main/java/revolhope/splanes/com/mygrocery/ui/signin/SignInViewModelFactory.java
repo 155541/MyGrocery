@@ -1,17 +1,17 @@
-package revolhope.splanes.com.mygrocery.ui.login;
+package revolhope.splanes.com.mygrocery.ui.signin;
 
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.annotation.NonNull;
 
-public class LoginViewModelFactory implements ViewModelProvider.Factory {
+public class SignInViewModelFactory implements ViewModelProvider.Factory {
 
     @NonNull
     @Override
     @SuppressWarnings("unchecked")
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-        if (modelClass.isAssignableFrom(LoginViewModel.class)) {
-            return (T) new LoginViewModel();
+        if (modelClass.isAssignableFrom(SignInViewModel.class)) {
+            return (T) new SignInViewModel();
         } else {
             throw new IllegalArgumentException("Unknown ViewModel class");
         }

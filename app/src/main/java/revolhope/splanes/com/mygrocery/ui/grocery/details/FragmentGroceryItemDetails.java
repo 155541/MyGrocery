@@ -1,14 +1,8 @@
 package revolhope.splanes.com.mygrocery.ui.grocery.details;
 
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +12,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.transition.Fade;
@@ -34,8 +26,7 @@ import java.util.Locale;
 
 import revolhope.splanes.com.mygrocery.R;
 import revolhope.splanes.com.mygrocery.data.model.item.Item;
-import revolhope.splanes.com.mygrocery.helpers.firebase.AppFirebase;
-import revolhope.splanes.com.mygrocery.ui.grocery.MainActivity;
+import revolhope.splanes.com.mygrocery.ui.MainActivity;
 
 public class FragmentGroceryItemDetails extends Fragment {
 
@@ -133,7 +124,7 @@ public class FragmentGroceryItemDetails extends Fragment {
                     public void onActionSelected(int option) {
                         switch (option) {
                             case DialogActions.ACTION_EDIT:
-                                Toast.makeText(context, "Edit", Toast.LENGTH_LONG).show();
+                                activity.showEditItem(item);
                                 break;
                             case DialogActions.ACTION_HISTORICAL:
                                 Toast.makeText(context, "Historic", Toast.LENGTH_LONG).show();

@@ -1,4 +1,4 @@
-package revolhope.splanes.com.mygrocery.data.login;
+package revolhope.splanes.com.mygrocery.data.signin;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -11,14 +11,13 @@ import revolhope.splanes.com.mygrocery.helpers.database.AppDatabase;
 import revolhope.splanes.com.mygrocery.helpers.database.AppDatabaseCallback;
 import revolhope.splanes.com.mygrocery.helpers.database.model.Preferences;
 import revolhope.splanes.com.mygrocery.helpers.firebase.AppFirebase;
-import revolhope.splanes.com.mygrocery.helpers.repository.AppRepository;
 
-public class LoginAsyncTask extends AsyncTask<String, Void, Void>{
+public class SignInAsyncTask extends AsyncTask<String, Void, Void>{
 
-    private LoginCallback callback;
+    private SignInCallback callback;
     private AppDatabase appDatabase;
 
-    public LoginAsyncTask(Context context, LoginCallback callback) {
+    public SignInAsyncTask(Context context, SignInCallback callback) {
         this.callback = callback;
         this.appDatabase = new AppDatabase(context);
     }
@@ -40,14 +39,13 @@ public class LoginAsyncTask extends AsyncTask<String, Void, Void>{
                         @Override
                         public void taskCompleted(boolean success, Object... parameters) {
                             if (success) {
-                                User u = new User(uuid, data[0], data[1], data[3]);
-                                AppRepository.setAppUser(u);
+                                final User u = new User(uuid, data[0], data[1], data[3]);
                                 appFirebase.pushUser(u, new AppFirebase.OnComplete() {
                                     @Override
                                     public void taskCompleted(boolean success, Object...
                                             parameters) {
                                         if (success) {
-                                            callback.onComplete(true);
+                                            callback.onComplete(true, u);
                                         }
                                         else {
                                             appDatabase.removePreferences();

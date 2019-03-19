@@ -22,18 +22,22 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import revolhope.splanes.com.mygrocery.R;
-import revolhope.splanes.com.mygrocery.helpers.repository.AppRepository;
-import revolhope.splanes.com.mygrocery.ui.loader.LoaderActivity;
+import revolhope.splanes.com.mygrocery.data.model.ItemNotification;
+import revolhope.splanes.com.mygrocery.data.model.item.Item;
+import revolhope.splanes.com.mygrocery.ui.MainActivity;
 
 public class ItemService extends Service {
 
+    public static final String INTENT_USERID = "UserID";
     private static final String CHANNEL_ID = "ItemService.Notify";
     private static int notificationId = 0;
     private FirebaseDatabase firebaseDatabase;
     private NotificationManagerCompat notificationManager;
+    private boolean haveToShow;
 
     @Override
     public void onCreate() {
+        haveToShow = false;
         notificationManager = NotificationManagerCompat.from(getApplicationContext());
         firebaseDatabase = FirebaseDatabase.getInstance();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -78,19 +82,33 @@ public class ItemService extends Service {
      */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        DatabaseReference ref = firebaseDatabase.getReference("db/db-data/db-notification")
-                .child(AppRepository.getAppUser().getId());
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                showNotification();
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        });
+        if (intent != null && intent.hasExtra(INTENT_USERID)) {
+            final DatabaseReference ref = firebaseDatabase.getReference("db/db-data/db-notification")
+                    .child(intent.getStringExtra(INTENT_USERID));
+            ref.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (haveToShow) {
+                        ItemNotification notification;
+                        for (DataSnapshot dataItem : dataSnapshot.getChildren()) {
+                            notification = dataItem.getValue(ItemNotification.class);
+                            if (notification != null) {
+                                showNotification(notification);
+                            }
+                        }
+                        ref.removeValue();
+                        haveToShow = false;
+                    }
+                    else haveToShow = true;
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                }
+            });
 
-        return START_STICKY;
+            return START_STICKY;
+        }
+        else return super.onStartCommand(intent, flags, startId);
     }
 
     /**
@@ -119,22 +137,26 @@ public class ItemService extends Service {
         return null;
     }
 
-    private void showNotification() {
-        Intent intent = new Intent(this, LoaderActivity.class);
+    private void showNotification(ItemNotification notification) {
+        Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent
                 .getActivity(this, 0, intent, 0);
+
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_grocery)
-                .setContentTitle("My notification")
-                .setContentText("Much longer text that cannot fit one line...")
+                .setContentTitle(notification.getAction())
+                .setContentText(notification.getItemName())
                 .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText("Much longer text that cannot fit one line..."))
+                        .bigText(notification.getAmount() + "\n" +
+                                 notification.getCategory() + "\n" +
+                                 notification.getPriority() + "\n" +
+                                 notification.getDescription()))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentIntent(pendingIntent)
-                .setAutoCancel(true);
+                .setAutoCancel(false);
         notificationManager.notify(notificationId, builder.build());
         notificationId++;
     }

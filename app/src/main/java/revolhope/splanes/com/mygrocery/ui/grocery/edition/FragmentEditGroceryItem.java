@@ -19,6 +19,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -35,8 +36,7 @@ import java.util.UUID;
 
 import revolhope.splanes.com.mygrocery.R;
 import revolhope.splanes.com.mygrocery.data.model.item.Item;
-import revolhope.splanes.com.mygrocery.helpers.repository.AppRepository;
-import revolhope.splanes.com.mygrocery.ui.grocery.MainActivity;
+import revolhope.splanes.com.mygrocery.ui.MainActivity;
 
 public class FragmentEditGroceryItem extends Fragment {
 
@@ -101,6 +101,7 @@ public class FragmentEditGroceryItem extends Fragment {
         editTextPriority = view.findViewById(R.id.editTextPriority);
         editTextDefault = view.findViewById(R.id.editTextDefaultUser);
         editTextReminder = view.findViewById(R.id.editTextReminder);
+        MaterialButton buttonCreate = view.findViewById(R.id.iconCreate);
 
         itemFormViewModel = ViewModelProviders.of(this, new ItemFormViewModelFactory())
                 .get(ItemFormViewModel.class);
@@ -135,7 +136,7 @@ public class FragmentEditGroceryItem extends Fragment {
                     Calendar now = Calendar.getInstance();
                     item.setDateCreated(now.getTimeInMillis());
                     item.setDateReminder(reminder.after(now) ? reminder.getTimeInMillis() : 0);
-                    item.setUserCreated(AppRepository.getAppUser().getId());
+                    item.setUserCreated(activity.getAppUser().getId());
                     if (_isUpdating) {
                         item.setId(_itemUpdating.getId());
                         activity.itemUpdated(item);
@@ -210,7 +211,7 @@ public class FragmentEditGroceryItem extends Fragment {
             }
         });
 
-        view.findViewById(R.id.iconCreate).setOnClickListener(new View.OnClickListener() {
+        buttonCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String name = editTextName.getText() != null ?
@@ -225,10 +226,9 @@ public class FragmentEditGroceryItem extends Fragment {
             }
         });
 
-
-        if (AppRepository.getAppUser() != null && AppRepository.getAppUser()
-                .getDefaultUserTarget() != null) {
-            editTextDefault.setText(AppRepository.getAppUser().getDefaultUserTarget());
+        if (activity.getAppUser() != null &&
+            activity.getAppUser().getDefaultUserTarget() != null) {
+            editTextDefault.setText(activity.getAppUser().getDefaultUserTarget());
         }
         imageViewReminder = view.findViewById(R.id.imageViewReminder);
         editTextReminder.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -260,6 +260,7 @@ public class FragmentEditGroceryItem extends Fragment {
                         new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE)
                                 .format(_itemUpdating.getDateReminder()));
             }
+            buttonCreate.setText("Desar");
         }
     }
 

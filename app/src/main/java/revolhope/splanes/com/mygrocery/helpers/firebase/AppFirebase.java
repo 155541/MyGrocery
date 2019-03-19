@@ -14,12 +14,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
+import revolhope.splanes.com.mygrocery.data.model.ItemNotification;
 import revolhope.splanes.com.mygrocery.data.model.item.Item;
 import revolhope.splanes.com.mygrocery.data.model.User;
-import revolhope.splanes.com.mygrocery.helpers.repository.AppRepository;
 
 public class AppFirebase {
 
@@ -87,34 +90,16 @@ public class AppFirebase {
         });
     }
 
-    public void fetchUsers(@NonNull final OnComplete onComplete) {
-        DatabaseReference dbRef = firebaseDatabase.getReference(db_user);
-        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                List<User> users = new ArrayList<>();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    User u = snapshot.getValue(User.class);
-                    users.add(u);
-                }
-                onComplete.taskCompleted(true, ((Object[])(users.toArray(new User[0]))));
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                onComplete.taskCompleted(false, databaseError.getMessage());
-            }
-        });
-    }
-
-    public void pushItem(@NonNull final Item newItem, @NonNull final OnComplete onComplete) {
+    public void pushItem(@NonNull final Item newItem, final boolean isUpdate, @NonNull final String userId,
+                         @NonNull final OnComplete onComplete) {
         resolveEmails(newItem.getUsersTarget(), new OnComplete() {
             @Override
             public void taskCompleted(boolean success, Object... parameters) {
                 if (success) {
                     final String[] targetIds = (String[]) parameters;
                     final DatabaseReference dbRef = firebaseDatabase.getReference(db_item);
-                    dbRef.child(AppRepository.getAppUser().getId()).push().setValue(newItem,
-                                                                 new DatabaseReference.CompletionListener() {
+                    dbRef.child(userId).push()
+                            .setValue(newItem, new DatabaseReference.CompletionListener() {
                         @Override
                         public void onComplete(@Nullable DatabaseError databaseError,
                                                @NonNull DatabaseReference databaseReference) {
@@ -129,8 +114,57 @@ public class AppFirebase {
                         }
                     });
                     final DatabaseReference dbRefNot = firebaseDatabase.getReference(db_notification);
-                    dbRefNot.child(AppRepository.getAppUser().getId()).push().setValue(newItem,
-                            null);
+                    ItemNotification itemNotification;
+                    for (String id : targetIds) {
+                        if (!id.equals(userId)) {
+
+                            itemNotification = new ItemNotification();
+                            itemNotification.setItemName(newItem.getItemName());
+                            if(isUpdate) {
+                                itemNotification.setAction("Article modificat");
+                            } else {
+                                itemNotification.setAction("Nou article afegit");
+                            }
+                            switch (newItem.getPriority()) {
+                                case 0:
+                                    itemNotification.setPriority("Prioritat: Alta");
+                                    break;
+                                case 1:
+                                    itemNotification.setPriority("Prioritat: Normal");
+                                    break;
+                                case 2:
+                                    itemNotification.setPriority("Prioritat: Baixa");
+                                    break;
+                            }
+                            switch (newItem.getCategory()) {
+                                case 0:
+                                    itemNotification.setCategory("Categoria: Sense categoria");
+                                    break;
+                                case 1:
+                                    itemNotification.setCategory("Categoria: Supermercat");
+                                    break;
+                                case 2:
+                                    itemNotification.setCategory("Categoria: Ferreteria");
+                                    break;
+                                case 3:
+                                    itemNotification.setCategory("Categoria: Electrònica");
+                                    break;
+                                case 4:
+                                    itemNotification.setCategory("Categoria: Aniversari");
+                                    break;
+                                case 5:
+                                    itemNotification.setCategory("Categoria: Altres casa");
+                                    break;
+                            }
+                            itemNotification.setAmount("Quantitat: " + newItem.getAmount());
+                            itemNotification.setDescription("Data i hora: " +
+                                    new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE).
+                                            format(Calendar.getInstance().getTime()));
+
+                            dbRefNot.child(id).push().setValue(itemNotification, null);
+                        }
+                    }
+
                 }
                 else {
                     onComplete.taskCompleted(false, parameters);
@@ -188,17 +222,43 @@ public class AppFirebase {
         });
     }
 
-    public void deleteItem(@NonNull final String itemId, @NonNull final OnComplete onComplete) {
-        final DatabaseReference dRef = firebaseDatabase.getReference(db_item)
-                .child(AppRepository.getAppUser().getId());
-        dRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    public void deleteItem(@NonNull final String itemId, @NonNull final String userId,
+                           @NonNull final OnComplete onComplete) {
+        final DatabaseReference dRef = firebaseDatabase.getReference(db_item);
+        dRef.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Item aux;
                 for (DataSnapshot dataItem : dataSnapshot.getChildren()) {
                     aux = dataItem.getValue(Item.class);
                     if (dataItem.getKey() != null && aux != null && aux.getId().equals(itemId)) {
-                        dRef.child(dataItem.getKey()).removeValue();
+                        dRef.child(userId).child(dataItem.getKey()).removeValue();
+                        resolveEmails(aux.getUsersTarget(), new OnComplete() {
+                            @Override
+                            public void taskCompleted(boolean success, Object... parameters) {
+                                if (success) {
+                                    for (final String id : (String[]) parameters) {
+                                        dRef.child(id).addListenerForSingleValueEvent(
+                                                new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                Item aux;
+                                                for (DataSnapshot dataItem : dataSnapshot.getChildren()){
+                                                    aux = dataItem.getValue(Item.class);
+                                                    if (dataItem.getKey() != null && aux != null && aux.getId().equals(itemId)) {
+                                                        dRef.child(id).child(dataItem.getKey()).removeValue();
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError databaseError) {}
+                                        });
+                                    }
+                                }
+                            }
+                        });
+                        onComplete.taskCompleted(true);
                         break;
                     }
                 }

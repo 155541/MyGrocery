@@ -1,6 +1,5 @@
 package revolhope.splanes.com.mygrocery.ui.grocery.list;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -28,14 +27,19 @@ import revolhope.splanes.com.mygrocery.data.model.item.Filter;
 import revolhope.splanes.com.mygrocery.data.model.item.Item;
 import revolhope.splanes.com.mygrocery.data.model.item.ItemViewModel;
 import revolhope.splanes.com.mygrocery.data.model.item.ItemViewModelFactory;
-import revolhope.splanes.com.mygrocery.helpers.repository.AppRepository;
-import revolhope.splanes.com.mygrocery.ui.grocery.MainActivity;
+import revolhope.splanes.com.mygrocery.ui.MainActivity;
 
 public class FragmentGroceryList extends Fragment {
 
     public static final String ARG_PENDING_ITEMS = "PendingItems";
     private static String[] namesFilter;
-
+    private static final int[] ICONS_FILTER = new int[]{
+            R.drawable.ic_grocery, R.drawable.ic_help,
+            R.drawable.ic_kitchen, R.drawable.ic_tool,
+            R.drawable.ic_device, R.drawable.ic_cake,
+            R.drawable.ic_home, R.drawable.ic_priority_high2,
+            R.drawable.ic_priority_medium, R.drawable.ic_priority_low
+    };
     private Context context;
     private MainActivity activity;
     private GroceryListAdapter adapter;
@@ -77,7 +81,7 @@ public class FragmentGroceryList extends Fragment {
         final ImageView imageViewAppliedFilter = view.findViewById(R.id.imageViewFilter);
         final TextView textViewAppliedFilter = view.findViewById(R.id.textViewFilter);
 
-        imageViewAppliedFilter.setImageResource(AppRepository.ICONS_FILTER[0]);
+        imageViewAppliedFilter.setImageResource(ICONS_FILTER[0]);
         textViewAppliedFilter.setText(namesFilter[0]);
 
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewList);
@@ -98,7 +102,7 @@ public class FragmentGroceryList extends Fragment {
             @Override
             public void onChanged(@Nullable Filter filter) {
                 if (filter == null) return;
-                imageViewAppliedFilter.setImageResource(AppRepository.ICONS_FILTER[filter.getIndex()]);
+                imageViewAppliedFilter.setImageResource(ICONS_FILTER[filter.getIndex()]);
                 textViewAppliedFilter.setText(namesFilter[filter.getIndex()]);
                 adapter.update(itemViewModel.getFilteredItems());
             }
@@ -131,16 +135,5 @@ public class FragmentGroceryList extends Fragment {
                 setExitTransition(new Fade(Fade.OUT));
             }
         });
-    }
-
-    public void addItem(Item item) {
-        List<Item> items = itemViewModel.getItemsSafe();
-        items.add(item);
-        pendingItems = items;
-        itemViewModel.itemsDataChanged(items);
-    }
-
-    public void updateItem(Item item) {
-
     }
 }

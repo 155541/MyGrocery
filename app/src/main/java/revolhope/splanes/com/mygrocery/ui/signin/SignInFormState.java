@@ -1,8 +1,8 @@
-package revolhope.splanes.com.mygrocery.ui.login;
+package revolhope.splanes.com.mygrocery.ui.signin;
 
 import androidx.annotation.Nullable;
 
-class LoginFormState {
+class SignInFormState {
     @Nullable
     private Integer usernameError;
     @Nullable
@@ -13,8 +13,8 @@ class LoginFormState {
     private Integer defaultEmailTargetError;
     private boolean isDataValid;
 
-    LoginFormState(@Nullable Integer usernameError, @Nullable Integer passwordError,
-                   @Nullable Integer emailError, @Nullable Integer defaultEmailTargetError) {
+    SignInFormState(@Nullable Integer usernameError, @Nullable Integer passwordError,
+                    @Nullable Integer emailError, @Nullable Integer defaultEmailTargetError) {
         this.usernameError = usernameError;
         this.passwordError = passwordError;
         this.emailError = emailError;
@@ -22,7 +22,7 @@ class LoginFormState {
         this.isDataValid = false;
     }
 
-    LoginFormState(boolean isDataValid) {
+    SignInFormState(boolean isDataValid) {
         this.usernameError = null;
         this.passwordError = null;
         this.emailError = null;
