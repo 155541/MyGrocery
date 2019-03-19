@@ -1,9 +1,9 @@
 package revolhope.splanes.com.mygrocery.data.model.item;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;

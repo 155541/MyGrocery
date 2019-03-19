@@ -54,6 +54,9 @@ public class GroceryListAdapter extends RecyclerView.Adapter<GroceryListAdapter.
         holder.textViewAmount.setText(String.valueOf(item.getAmount()));
         holder.iconCategory.setImageResource(iconCategory[item.getCategory()]);
         holder.iconPriority.setImageResource(iconsPriority[item.getPriority()]);
+        if (item.getIsSeen() == 0) {
+            holder.iconNew.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -72,6 +75,7 @@ public class GroceryListAdapter extends RecyclerView.Adapter<GroceryListAdapter.
         private TextView textViewItemName;
         private TextView textViewAmount;
         private ImageView iconPriority;
+        private ImageView iconNew;
 
         private Holder(final View view) {
             super(view);
@@ -79,6 +83,7 @@ public class GroceryListAdapter extends RecyclerView.Adapter<GroceryListAdapter.
             textViewAmount = view.findViewById(R.id.textViewAmount);
             iconCategory = view.findViewById(R.id.iconCategory);
             iconPriority = view.findViewById(R.id.iconPriority);
+            iconNew = view.findViewById(R.id.iconNew);
 
             view.setOnClickListener(new View.OnClickListener() {
                 @Override

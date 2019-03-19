@@ -7,10 +7,11 @@ public class Item implements Serializable {
     private String id;
     private String itemName;
     private int amount;
-    private int bought;
     private int category;
     private int priority;
     private long dateReminder;
+    private int isReminderSet;
+    private int isSeen;
     private long dateCreated;
     private String userCreated;
     private List<String> usersTarget;
@@ -37,14 +38,6 @@ public class Item implements Serializable {
 
     public void setAmount(int amount) {
         this.amount = amount;
-    }
-
-    public int getBought() {
-        return bought;
-    }
-
-    public void setBought(int bought) {
-        this.bought = bought;
     }
 
     public int getCategory() {
@@ -93,5 +86,21 @@ public class Item implements Serializable {
 
     public void setUsersTarget(List<String> usersTarget) {
         this.usersTarget = usersTarget;
+    }
+
+    public int getIsReminderSet() {
+        return isReminderSet;
+    }
+
+    public void setIsReminderSet(int isReminderSet) {
+        this.isReminderSet = isReminderSet;
+    }
+
+    public int getIsSeen() {
+        return isSeen;
+    }
+
+    public void setIsSeen(int isSeen) {
+        this.isSeen = isSeen;
     }
 }

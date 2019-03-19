@@ -1,6 +1,7 @@
 package revolhope.splanes.com.mygrocery.ui.loader;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +25,7 @@ import revolhope.splanes.com.mygrocery.helpers.database.AppDatabase;
 import revolhope.splanes.com.mygrocery.helpers.database.AppDatabaseCallback;
 import revolhope.splanes.com.mygrocery.helpers.database.model.Preferences;
 import revolhope.splanes.com.mygrocery.helpers.firebase.AppFirebase;
+import revolhope.splanes.com.mygrocery.helpers.reminder.AppReminder;
 import revolhope.splanes.com.mygrocery.ui.MainActivity;
 
 public class FragmentLoader extends Fragment {
@@ -143,6 +145,7 @@ public class FragmentLoader extends Fragment {
             @Override
             public void taskCompleted(boolean success, Object... parameters) {
                 if (success) {
+                    boolean alreadyShown = false;
                     if (parameters != null) {
                         Item[] items = new Item[parameters.length];
                         int i = 0;
@@ -151,9 +154,17 @@ public class FragmentLoader extends Fragment {
                             i++;
                         }
                         activity.setPendingItems(Arrays.asList(items));
+                        activity.setAppUser(user);
+                        for (Item item : items) {
+                            if (item.getIsReminderSet() == 0 && item.getDateReminder() != 0L) {
+                                AppReminder.setReminder(item, context.getContentResolver());
+                                item.setIsReminderSet(1);
+                                activity.itemUpdated(item);
+                                alreadyShown = true;
+                            }
+                        }
                     }
-                    activity.setAppUser(user);
-                    activity.showItemList();
+                    if (!alreadyShown) activity.showItemList();
                 }
             }
         });

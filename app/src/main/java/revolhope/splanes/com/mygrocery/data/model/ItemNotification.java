@@ -11,19 +11,6 @@ public class ItemNotification implements Serializable {
     private String priority;
     private String description;
 
-    public ItemNotification() {
-    }
-
-    public ItemNotification(String itemName, String action, String category, String amount,
-                            String priority, String description) {
-        this.itemName = itemName;
-        this.action = action;
-        this.category = category;
-        this.amount = amount;
-        this.priority = priority;
-        this.description = description;
-    }
-
     public String getItemName() {
         return itemName;
     }

@@ -50,6 +50,20 @@
         app:layout_constraintTop_toTopOf="@+id/promptAmount" />
 
     <ImageView
+        android:id="@+id/iconNew"
+        android:layout_width="0dp"
+        android:layout_height="25dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:src="@drawable/ic_new"
+        android:tint="@color/colorAccent"
+        app:layout_constraintBottom_toBottomOf="@+id/promptAmount"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textViewAmount"
+        android:visibility="gone"/>
+
+    <ImageView
         android:id="@+id/iconPriority"
         android:layout_width="20dp"
         android:layout_height="20dp"

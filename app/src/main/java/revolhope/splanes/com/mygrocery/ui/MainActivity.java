@@ -182,12 +182,15 @@ public class MainActivity extends AppCompatActivity {
         this.pendingItems = items.toArray(new Item[0]);
     }
 
-    /**
-     * Take care of popping the fragment back stack or finishing the activity
-     * as appropriate.
-     */
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    protected void onDestroy() {
+        AppFirebase appFirebase = AppFirebase.getInstance();
+        appFirebase.deleteMyItems(appUser.getId());
+        for (Item item : pendingItems) {
+            item.setIsSeen(1);
+            appFirebase.pushItemForMe(item, appUser.getId());
+        }
+        appFirebase.signOut();
+        super.onDestroy();
     }
 }

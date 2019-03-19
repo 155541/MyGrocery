@@ -23,7 +23,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import revolhope.splanes.com.mygrocery.R;
 import revolhope.splanes.com.mygrocery.data.model.ItemNotification;
-import revolhope.splanes.com.mygrocery.data.model.item.Item;
 import revolhope.splanes.com.mygrocery.ui.MainActivity;
 
 public class ItemService extends Service {
@@ -149,7 +148,8 @@ public class ItemService extends Service {
                 .setContentTitle(notification.getAction())
                 .setContentText(notification.getItemName())
                 .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText(notification.getAmount() + "\n" +
+                        .bigText(notification.getItemName() + "\n" +
+                                 notification.getAmount()   + "\n" +
                                  notification.getCategory() + "\n" +
                                  notification.getPriority() + "\n" +
                                  notification.getDescription()))

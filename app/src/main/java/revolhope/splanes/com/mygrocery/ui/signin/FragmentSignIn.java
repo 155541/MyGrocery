@@ -27,9 +27,9 @@ import java.util.ArrayList;
 
 import revolhope.splanes.com.mygrocery.R;
 import revolhope.splanes.com.mygrocery.data.model.User;
+import revolhope.splanes.com.mygrocery.data.model.item.Item;
 import revolhope.splanes.com.mygrocery.data.signin.SignInAsyncTask;
 import revolhope.splanes.com.mygrocery.data.signin.SignInCallback;
-import revolhope.splanes.com.mygrocery.data.model.item.Item;
 import revolhope.splanes.com.mygrocery.ui.MainActivity;
 
 public class FragmentSignIn extends Fragment {

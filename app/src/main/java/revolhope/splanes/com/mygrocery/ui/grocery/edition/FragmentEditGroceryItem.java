@@ -4,7 +4,6 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
-import androidx.transition.Fade;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.transition.Fade;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -120,7 +120,6 @@ public class FragmentEditGroceryItem extends Fragment {
                     Item item = new Item();
                     item.setItemName(name);
                     item.setAmount(intAmount);
-                    item.setBought(0);
                     item.setCategory(selectedCategory);
                     item.setPriority(selectedPriority);
                     if (!defaultTarget.isEmpty()) {

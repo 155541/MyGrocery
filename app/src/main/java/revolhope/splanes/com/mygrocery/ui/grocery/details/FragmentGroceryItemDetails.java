@@ -74,7 +74,7 @@ public class FragmentGroceryItemDetails extends Fragment {
         TextView title = view.findViewById(R.id.textViewItemName);
         TextView dateCreate = view.findViewById(R.id.textViewDateCreated);
         TextInputEditText editTextCategory = view.findViewById(R.id.editTextCategory);
-        TextInputEditText editTextAmount = view.findViewById(R.id.editTextAmount);
+        final TextInputEditText editTextAmount = view.findViewById(R.id.editTextAmount);
         TextInputEditText editTextPriority = view.findViewById(R.id.editTextPriority);
         TextInputEditText editTextDefaultUser = view.findViewById(R.id.editTextDefaultUser);
         TextInputEditText editTextReminder = view.findViewById(R.id.editTextReminder);
@@ -112,6 +112,20 @@ public class FragmentGroceryItemDetails extends Fragment {
             @Override
             public void onClick(View v) {
                 activity.showItemList();
+            }
+        });
+        buttonBuy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int newAmount = item.getAmount()-1;
+                if (newAmount > 0) {
+                    item.setAmount(newAmount);
+                    editTextAmount.setText(String.valueOf(newAmount));
+                    activity.itemUpdated(item);
+                }
+                else {
+                    activity.deleteItem(item);
+                }
             }
         });
         buttonActions.setOnClickListener(new View.OnClickListener() {

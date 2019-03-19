@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Locale;
 
 import revolhope.splanes.com.mygrocery.data.model.ItemNotification;
-import revolhope.splanes.com.mygrocery.data.model.item.Item;
 import revolhope.splanes.com.mygrocery.data.model.User;
+import revolhope.splanes.com.mygrocery.data.model.item.Item;
 
 public class AppFirebase {
 
@@ -51,6 +51,49 @@ public class AppFirebase {
         }
         return instance;
     }
+
+//**************************************************************************************************
+//  Account Manage
+//**************************************************************************************************
+
+    public void signUp(String email, String password, final OnComplete onComplete) {
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            mUser = firebaseAuth.getCurrentUser();
+                            onComplete.taskCompleted(true, mUser);
+                        } else {
+                            onComplete.taskCompleted(false, task.getException());
+                        }
+                    }
+                });
+    }
+
+    public void signIn(String email, String password, final OnComplete onComplete) {
+        firebaseAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            mUser = firebaseAuth.getCurrentUser();
+                            onComplete.taskCompleted(true, mUser);
+                        }
+                        else {
+                            onComplete.taskCompleted(false, task.getException());
+                        }
+                    }
+                });
+    }
+
+    public void signOut() {
+        firebaseAuth.signOut();
+    }
+
+//**************************************************************************************************
+//  User
+//**************************************************************************************************
 
     public void pushUser(@NonNull User newUser, @NonNull final OnComplete onComplete) {
 
@@ -90,8 +133,16 @@ public class AppFirebase {
         });
     }
 
-    public void pushItem(@NonNull final Item newItem, final boolean isUpdate, @NonNull final String userId,
-                         @NonNull final OnComplete onComplete) {
+//**************************************************************************************************
+//  Item
+//**************************************************************************************************
+
+    public void pushItem(@NonNull final Item newItem, final boolean isUpdate,
+                         @NonNull final String userId, @NonNull final OnComplete onComplete) {
+        if (!isUpdate) {
+            newItem.setIsSeen(1);
+            newItem.setIsReminderSet(1);
+        }
         resolveEmails(newItem.getUsersTarget(), new OnComplete() {
             @Override
             public void taskCompleted(boolean success, Object... parameters) {
@@ -104,6 +155,10 @@ public class AppFirebase {
                         public void onComplete(@Nullable DatabaseError databaseError,
                                                @NonNull DatabaseReference databaseReference) {
                             if (databaseError == null) {
+                                if (!isUpdate) {
+                                    newItem.setIsSeen(0);
+                                    newItem.setIsReminderSet(0);
+                                }
                                 for (String id : targetIds) {
                                     dbRef.child(id).push().setValue(newItem, null);
                                 }
@@ -117,50 +172,7 @@ public class AppFirebase {
                     ItemNotification itemNotification;
                     for (String id : targetIds) {
                         if (!id.equals(userId)) {
-
-                            itemNotification = new ItemNotification();
-                            itemNotification.setItemName(newItem.getItemName());
-                            if(isUpdate) {
-                                itemNotification.setAction("Article modificat");
-                            } else {
-                                itemNotification.setAction("Nou article afegit");
-                            }
-                            switch (newItem.getPriority()) {
-                                case 0:
-                                    itemNotification.setPriority("Prioritat: Alta");
-                                    break;
-                                case 1:
-                                    itemNotification.setPriority("Prioritat: Normal");
-                                    break;
-                                case 2:
-                                    itemNotification.setPriority("Prioritat: Baixa");
-                                    break;
-                            }
-                            switch (newItem.getCategory()) {
-                                case 0:
-                                    itemNotification.setCategory("Categoria: Sense categoria");
-                                    break;
-                                case 1:
-                                    itemNotification.setCategory("Categoria: Supermercat");
-                                    break;
-                                case 2:
-                                    itemNotification.setCategory("Categoria: Ferreteria");
-                                    break;
-                                case 3:
-                                    itemNotification.setCategory("Categoria: Electrònica");
-                                    break;
-                                case 4:
-                                    itemNotification.setCategory("Categoria: Aniversari");
-                                    break;
-                                case 5:
-                                    itemNotification.setCategory("Categoria: Altres casa");
-                                    break;
-                            }
-                            itemNotification.setAmount("Quantitat: " + newItem.getAmount());
-                            itemNotification.setDescription("Data i hora: " +
-                                    new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE).
-                                            format(Calendar.getInstance().getTime()));
-
+                            itemNotification = buildItemNotification(newItem, isUpdate);
                             dbRefNot.child(id).push().setValue(itemNotification, null);
                         }
                     }
@@ -172,32 +184,13 @@ public class AppFirebase {
             }
         });
     }
-    
-    private void resolveEmails(final List<String> emails, @NonNull final OnComplete onComplete) {
-        final List<String> ids = new ArrayList<>();
-        DatabaseReference dRef = firebaseDatabase.getReference(db_user);
-        dRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                User u;
-                int count = 0;
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    if (count == emails.size()) break;
-                    u = snapshot.getValue(User.class);
-                    if (u != null && emails.contains(u.getEmail())) {
-                        count++;
-                        ids.add(u.getId());
-                    }
-                }
-                onComplete.taskCompleted(true, (Object[])(ids.toArray(new String[0])));
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                onComplete.taskCompleted(false, databaseError.getMessage());
-            }
-        });
+
+    public void pushItemForMe(@NonNull final Item item, @NonNull final String userId) {
+        item.setIsSeen(1);
+        DatabaseReference dbRef = firebaseDatabase.getReference(db_item).child(userId);
+        dbRef.push().setValue(item, null);
     }
-    
+
     public void fetchItems(@NonNull final String userId, @NonNull final OnComplete onComplete) {
         DatabaseReference dRef = firebaseDatabase.getReference(db_item);
         dRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -270,38 +263,87 @@ public class AppFirebase {
         });
     }
 
-    public void signUp(String email, String password, final OnComplete onComplete) {
-        firebaseAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            mUser = firebaseAuth.getCurrentUser();
-                            onComplete.taskCompleted(true, mUser);
-                        } else {
-                            onComplete.taskCompleted(false, task.getException());
-                        }
-                    }
-                });
+    public void deleteMyItems(@NonNull final String userId) {
+        final DatabaseReference dRef = firebaseDatabase.getReference(db_item).child(userId);
+        dRef.removeValue();
     }
 
-    public void signIn(String email, String password, final OnComplete onComplete) {
-        firebaseAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            mUser = firebaseAuth.getCurrentUser();
-                            onComplete.taskCompleted(true, mUser);
-                        }
-                        else {
-                            onComplete.taskCompleted(false, task.getException());
-                        }
+//**************************************************************************************************
+//  Historic
+//**************************************************************************************************
+
+//**************************************************************************************************
+//  Private
+//**************************************************************************************************
+    private void resolveEmails(final List<String> emails, @NonNull final OnComplete onComplete) {
+        final List<String> ids = new ArrayList<>();
+        DatabaseReference dRef = firebaseDatabase.getReference(db_user);
+        dRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                User u;
+                int count = 0;
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    if (count == emails.size()) break;
+                    u = snapshot.getValue(User.class);
+                    if (u != null && emails.contains(u.getEmail())) {
+                        count++;
+                        ids.add(u.getId());
                     }
-                });
+                }
+                onComplete.taskCompleted(true, (Object[])(ids.toArray(new String[0])));
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                onComplete.taskCompleted(false, databaseError.getMessage());
+            }
+        });
     }
 
-    public void signOut() {
-        firebaseAuth.signOut();
+    private ItemNotification buildItemNotification(Item item, boolean isUpdate) {
+        ItemNotification itemNotification = new ItemNotification();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE);
+        itemNotification.setItemName(item.getItemName());
+        if(isUpdate) {
+            itemNotification.setAction("Article modificat");
+        } else {
+            itemNotification.setAction("Nou article afegit");
+        }
+        switch (item.getPriority()) {
+            case 0:
+                itemNotification.setPriority("Prioritat: Alta");
+                break;
+            case 1:
+                itemNotification.setPriority("Prioritat: Normal");
+                break;
+            case 2:
+                itemNotification.setPriority("Prioritat: Baixa");
+                break;
+        }
+        switch (item.getCategory()) {
+            case 0:
+                itemNotification.setCategory("Categoria: Sense categoria");
+                break;
+            case 1:
+                itemNotification.setCategory("Categoria: Supermercat");
+                break;
+            case 2:
+                itemNotification.setCategory("Categoria: Ferreteria");
+                break;
+            case 3:
+                itemNotification.setCategory("Categoria: Electrònica");
+                break;
+            case 4:
+                itemNotification.setCategory("Categoria: Aniversari");
+                break;
+            case 5:
+                itemNotification.setCategory("Categoria: Altres casa");
+                break;
+        }
+        itemNotification.setAmount("Quantitat: " + item.getAmount());
+        itemNotification.setDescription(
+                "Recordatori? " + (item.getDateReminder() == 0L ? "No" : "Si") + "\n" +
+                "Data i hora: " + sdf.format(Calendar.getInstance().getTime()));
+        return itemNotification;
     }
 }

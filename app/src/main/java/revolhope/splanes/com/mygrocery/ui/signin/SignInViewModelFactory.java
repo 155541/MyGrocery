@@ -1,8 +1,8 @@
 package revolhope.splanes.com.mygrocery.ui.signin;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.annotation.NonNull;
 
 public class SignInViewModelFactory implements ViewModelProvider.Factory {
 
