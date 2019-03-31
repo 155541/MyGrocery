@@ -36,6 +36,7 @@ import java.util.UUID;
 
 import revolhope.splanes.com.mygrocery.R;
 import revolhope.splanes.com.mygrocery.data.model.item.Item;
+import revolhope.splanes.com.mygrocery.helpers.reminder.AppReminder;
 import revolhope.splanes.com.mygrocery.ui.MainActivity;
 
 public class FragmentEditGroceryItem extends Fragment {
@@ -141,6 +142,11 @@ public class FragmentEditGroceryItem extends Fragment {
                         activity.itemUpdated(item);
                     } else {
                         item.setId(UUID.randomUUID().toString().replace("-", ""));
+                        item.setIsSeen(1);
+                        if (item.getDateReminder() != 0) {
+                            AppReminder.setReminder(item, context.getContentResolver());
+                            item.setIsReminderSet(1);
+                        }
                         activity.newItemCreated(item);
                     }
                 }

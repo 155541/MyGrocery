@@ -121,7 +121,7 @@ public class FragmentGroceryItemDetails extends Fragment {
                 if (newAmount > 0) {
                     item.setAmount(newAmount);
                     editTextAmount.setText(String.valueOf(newAmount));
-                    activity.itemUpdated(item);
+                    activity.itemBought(item);
                 }
                 else {
                     activity.deleteItem(item);
@@ -141,7 +141,7 @@ public class FragmentGroceryItemDetails extends Fragment {
                                 activity.showEditItem(item);
                                 break;
                             case DialogActions.ACTION_HISTORICAL:
-                                Toast.makeText(context, "Historic", Toast.LENGTH_LONG).show();
+                                activity.showHistoricItem(item);
                                 break;
                             case DialogActions.ACTION_DELETE:
                                 DialogDelete dialogDelete = new DialogDelete();

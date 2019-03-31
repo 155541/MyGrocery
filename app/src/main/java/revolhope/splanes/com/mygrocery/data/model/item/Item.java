@@ -1,6 +1,7 @@
 package revolhope.splanes.com.mygrocery.data.model.item;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Item implements Serializable {
@@ -15,6 +16,10 @@ public class Item implements Serializable {
     private long dateCreated;
     private String userCreated;
     private List<String> usersTarget;
+
+    public Item() {
+        this.usersTarget = new ArrayList<>();
+    }
 
     public String getId() {
         return id;

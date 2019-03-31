@@ -8,17 +8,24 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import revolhope.splanes.com.mygrocery.R;
+import revolhope.splanes.com.mygrocery.data.model.ItemHistoric;
 import revolhope.splanes.com.mygrocery.data.model.User;
 import revolhope.splanes.com.mygrocery.data.model.item.Item;
 import revolhope.splanes.com.mygrocery.helpers.firebase.AppFirebase;
 import revolhope.splanes.com.mygrocery.helpers.firebase.service.ItemService;
+import revolhope.splanes.com.mygrocery.helpers.reminder.AppReminder;
 import revolhope.splanes.com.mygrocery.ui.grocery.details.FragmentGroceryItemDetails;
 import revolhope.splanes.com.mygrocery.ui.grocery.edition.FragmentEditGroceryItem;
+import revolhope.splanes.com.mygrocery.ui.grocery.historic.FragmentItemHistoric;
 import revolhope.splanes.com.mygrocery.ui.grocery.list.FragmentGroceryList;
 import revolhope.splanes.com.mygrocery.ui.loader.FragmentLoader;
 import revolhope.splanes.com.mygrocery.ui.signin.FragmentSignIn;
@@ -106,6 +113,14 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
+            ItemHistoric itemHistoric = new ItemHistoric();
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE);
+            itemHistoric.setUserName(appUser.getDisplayName());
+            itemHistoric.setAction("Acció: creació d'un nou article");
+            itemHistoric.setPreviousState("Article creat: " + item.getItemName());
+            itemHistoric.setNewState("Quantitat: " + item.getAmount());
+            itemHistoric.setDate(sdf.format(new Date(item.getDateCreated())));
+            appFirebase.pushHistoric(item.getId(), itemHistoric);
         }
     }
 
@@ -119,8 +134,16 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
+    public void showHistoricItem(final Item item) {
+        fragmentManager.beginTransaction()
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .replace(R.id.container, FragmentItemHistoric.newInstance(item))
+                .addToBackStack(null)
+                .commit();
+    }
+
     public void itemUpdated(final Item item) {
-       deleteItem(item);
+        deleteItem(item);
         if (item != null) {
             AppFirebase appFirebase = AppFirebase.getInstance();
             appFirebase.pushItem(item, true, appUser.getId(), new AppFirebase.OnComplete() {
@@ -139,6 +162,45 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
+            ItemHistoric itemHistoric = new ItemHistoric();
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE);
+            itemHistoric.setUserName(appUser.getDisplayName());
+            itemHistoric.setAction("Acció: edició d'un article");
+            itemHistoric.setPreviousState("Article modificat: " + item.getItemName());
+            itemHistoric.setNewState("Quantitat: " + item.getAmount());
+            itemHistoric.setDate(sdf.format(Calendar.getInstance().getTime()));
+            appFirebase.pushHistoric(item.getId(), itemHistoric);
+        }
+    }
+
+    public void itemBought(final Item item) {
+        deleteItem(item);
+        if (item != null) {
+            AppFirebase appFirebase = AppFirebase.getInstance();
+            appFirebase.pushItem(item, true, appUser.getId(), new AppFirebase.OnComplete() {
+                @Override
+                public void taskCompleted(boolean success, Object... parameters) {
+                    if (success) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                List<Item> items = new ArrayList<>(Arrays.asList(pendingItems));
+                                items.add(item);
+                                pendingItems = items.toArray(new Item[0]);
+                                showItemList();
+                            }
+                        });
+                    }
+                }
+            });
+            ItemHistoric itemHistoric = new ItemHistoric();
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE);
+            itemHistoric.setUserName(appUser.getDisplayName());
+            itemHistoric.setAction("Acció: comprar " + item.getItemName());
+            itemHistoric.setPreviousState("Quantitat comprada: 1");
+            itemHistoric.setNewState("Resten: " + item.getAmount());
+            itemHistoric.setDate(sdf.format(Calendar.getInstance().getTime()));
+            appFirebase.pushHistoric(item.getId(), itemHistoric);
         }
     }
 
@@ -180,6 +242,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void setPendingItems(List<Item> items) {
         this.pendingItems = items.toArray(new Item[0]);
+    }
+
+    public void pop() {
+        fragmentManager.popBackStack();
     }
 
     @Override

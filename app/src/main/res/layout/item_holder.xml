@@ -25,9 +25,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="8dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        app:layout_constraintEnd_toStartOf="@+id/iconPriority"
         app:layout_constraintStart_toEndOf="@+id/iconCategory"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -51,17 +49,17 @@
 
     <ImageView
         android:id="@+id/iconNew"
-        android:layout_width="0dp"
-        android:layout_height="25dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_width="25dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="2dp"
         android:src="@drawable/ic_new"
         android:tint="@color/colorAccent"
-        app:layout_constraintBottom_toBottomOf="@+id/promptAmount"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textViewAmount"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/textViewItemName"
+        app:layout_constraintStart_toEndOf="@+id/textViewItemName"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription" />
 
     <ImageView
         android:id="@+id/iconPriority"

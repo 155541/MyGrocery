@@ -20,6 +20,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import revolhope.splanes.com.mygrocery.data.model.ItemHistoric;
 import revolhope.splanes.com.mygrocery.data.model.ItemNotification;
 import revolhope.splanes.com.mygrocery.data.model.User;
 import revolhope.splanes.com.mygrocery.data.model.item.Item;
@@ -176,7 +177,6 @@ public class AppFirebase {
                             dbRefNot.child(id).push().setValue(itemNotification, null);
                         }
                     }
-
                 }
                 else {
                     onComplete.taskCompleted(false, parameters);
@@ -271,6 +271,37 @@ public class AppFirebase {
 //**************************************************************************************************
 //  Historic
 //**************************************************************************************************
+
+    public void pushHistoric(@NonNull final String itemId,
+                              @NonNull ItemHistoric itemHistoric) {
+        final DatabaseReference dRef = firebaseDatabase.getReference(db_historic).child(itemId);
+        dRef.push().setValue(itemHistoric);
+    }
+
+    public void fetchHistoric(@NonNull final String itemId,
+                              @NonNull final OnComplete onComplete) {
+        final DatabaseReference dRef = firebaseDatabase.getReference(db_historic).child(itemId);
+        dRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                ItemHistoric[] items = new ItemHistoric[(int)dataSnapshot.getChildrenCount()];
+                int i = 0;
+                for (DataSnapshot data : dataSnapshot.getChildren()) {
+                    ItemHistoric item = data.getValue(ItemHistoric.class);
+                    if (item != null) {
+                        items[i] = item;
+                    }
+                    i++;
+                }
+                onComplete.taskCompleted(true, (Object[]) items);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                onComplete.taskCompleted(false, databaseError.getMessage());
+            }
+        });
+    }
 
 //**************************************************************************************************
 //  Private
